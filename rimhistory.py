@@ -1,6 +1,7 @@
 """Extract data from a RimWorld save file"""
 
 import json
+import logging
 import time
 import xml.etree.ElementTree
 
@@ -60,8 +61,13 @@ def recurse_children(parent) -> None:
     """Recurse through all the children of an element"""
     print(parent.tag, parent.attrib, parent.text)
 
-    for child in parent:
+    for index, child in enumerate(parent):
         recurse_children(child)
+
+        if index >= 10:
+            logging.debug("10 siblings belong to parent element have been scanned. Skipping to next\
+                 parent node")
+            break
 
     time.sleep(0.01)
 
