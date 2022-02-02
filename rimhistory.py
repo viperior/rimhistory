@@ -66,8 +66,8 @@ def log_debug_data() -> None:
     Returns:
     None
     """
-    logging.debug(f"RimWorld game version: {extract_game_version()}")
-    logging.debug(f"List of installed mods:\n{json.dumps(extract_mod_list(), indent=4)}")
+    logging.debug("RimWorld game version: %s", extract_game_version())
+    logging.debug("List of installed mods:\n%s", json.dumps(extract_mod_list(), indent=4))
 
 
 def recurse_children(parent) -> None:
