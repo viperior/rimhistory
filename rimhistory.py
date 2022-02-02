@@ -57,6 +57,19 @@ def get_save_file_path() -> str:
     return rimworld_save_file_path
 
 
+def log_debug_data() -> None:
+    """Display debug output to test data extraction functions
+
+    Parameters:
+    None
+
+    Returns:
+    None
+    """
+    logging.debug(f"RimWorld game version: {extract_game_version()}")
+    logging.debug(f"List of installed mods:\n{json.dumps(extract_mod_list(), indent=4)}")
+
+
 def recurse_children(parent) -> None:
     """Recurse through all the children of an element"""
     print(parent.tag, parent.attrib, parent.text)
@@ -73,9 +86,8 @@ def recurse_children(parent) -> None:
 
 
 if __name__ == "__main__":
-    logging.basicConfig(filename='rimhistory.log', encoding='utf_8', level=logging.INFO)
-    print(f"RimWorld game version: {extract_game_version()}")
-    print(f"List of installed mods:\n{json.dumps(extract_mod_list(), indent=4)}")
+    logging.basicConfig(filename='rimhistory.log', encoding='utf_8', level=logging.DEBUG)
+    log_debug_data()
 
     if input("Display all game save data? (Y/n) ").upper() == "Y":
         extract_rimworld_save_data()
