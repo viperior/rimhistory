@@ -1,0 +1,30 @@
+{
+    "xml_elements_remove_list": [
+        ".//areaManager",
+        ".//compressedThingMapDeflate",
+        ".//deepResourceGrid",
+        ".//defaultFoodRestriction",
+        ".//drugPolicy",
+        ".//drugPolicyDatabase",
+        ".//fogGrid",
+        ".//foodRestrictionDatabase",
+        ".//healthTracker",
+        ".//itemsNotForSale",
+        ".//grid",
+        ".//guest",
+        ".//ideoManager",
+        ".//originalTerrainDeflate",
+        ".//outfitDatabase",
+        ".//roofGrid",
+        ".//snowGrid",
+        ".//stoneGridDeflate",
+        ".//temperatureCache",
+        ".//terrainGrid",
+        ".//zoneManager",
+        ".//li[@Class='AchievementsExpanded.AchievementPointManager']",
+        ".//li[@Class='DesirePaths.DesireGrid']",
+        ".//li[@Class='Quarry.QuarryGrid']",
+        ".//li[@Class='ThingWithComps']",
+        ".//li[@Class='WorkTab.PriorityManager']"
+    ]
+}
