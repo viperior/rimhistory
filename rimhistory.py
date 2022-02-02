@@ -73,6 +73,7 @@ def recurse_children(parent) -> None:
 
 
 if __name__ == "__main__":
+    logging.basicConfig(filename='rimhistory.log', encoding='utf_8', level=logging.INFO)
     print(f"RimWorld game version: {extract_game_version()}")
     print(f"List of installed mods:\n{json.dumps(extract_mod_list(), indent=4)}")
 
