@@ -69,4 +69,6 @@ def recurse_children(parent) -> None:
 if __name__ == "__main__":
     print(f"RimWorld game version: {extract_game_version()}")
     print(f"List of installed mods:\n{json.dumps(extract_mod_list(), indent=4)}")
-    #extract_rimworld_save_data()
+
+    if input("Display all game save data? (Y/n) ").upper() == "Y":
+        extract_rimworld_save_data()
