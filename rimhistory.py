@@ -11,6 +11,7 @@ def extract_game_version() -> str:
 
     return root.find("./meta/gameVersion").text
 
+
 def extract_mod_list() -> list:
     """Extracts the list of mods installed in the save game"""
     root = get_save_file_data(save_file_path=get_save_file_path())
@@ -29,10 +30,12 @@ def extract_mod_list() -> list:
 
     return mod_list
 
+
 def extract_rimworld_save_data() -> None:
     """Recurse through all the data"""
     root = get_save_file_data(save_file_path=get_save_file_path())
     recurse_children(root)
+
 
 def get_save_file_data(save_file_path) -> xml.etree.ElementTree.Element:
     """Return the root object from the RimWorld save game XML data"""
@@ -40,6 +43,7 @@ def get_save_file_data(save_file_path) -> xml.etree.ElementTree.Element:
     root = tree.getroot()
 
     return root
+
 
 def get_save_file_path() -> str:
     """Return the path to the RimWorld save file to analyze as a string"""
@@ -51,6 +55,7 @@ def get_save_file_path() -> str:
 
     return rimworld_save_file_path
 
+
 def recurse_children(parent) -> None:
     """Recurse through all the children of an element"""
     print(parent.tag, parent.attrib, parent.text)
@@ -59,6 +64,7 @@ def recurse_children(parent) -> None:
         recurse_children(child)
 
     time.sleep(0.01)
+
 
 if __name__ == "__main__":
     print(f"RimWorld game version: {extract_game_version()}")
