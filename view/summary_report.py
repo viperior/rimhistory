@@ -26,7 +26,7 @@ def generate_summary_report() -> None:
         with div():
             attr(cls='body')
             h1("RimWorld Save Game Summary")
-            h2("Installed Mods")
+            h2(f"Installed Mods ({len(mod_list)})")
 
             with ul():
                 for mod in mod_list:
