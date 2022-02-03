@@ -30,4 +30,5 @@ jobs:
     - name: Test with pytest
       run: |
         cp config.json.example config.json
-        python -m pytest -v tests/
+        python -m coverage run -m pytest -v tests/
+        coverage report -m --fail-under 95
