@@ -8,6 +8,8 @@ astroid==2.9.3
     # via pylint
 attrs==21.4.0
     # via pytest
+dominate==2.6.0
+    # via -r requirements.in
 execnet==1.9.0
     # via pytest-xdist
 importlib-metadata==4.8.3
