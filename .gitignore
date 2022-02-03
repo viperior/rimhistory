@@ -130,3 +130,10 @@ dmypy.json
 
 # VS Code settings file
 .vscode/settings.json
+
+# Cloud9 files
+.~c9*
+
+# rimhistory custom ignore files
+data/
+config.json

@@ -1,13 +1,5 @@
-# python-project-template
+# rimhistory
 
-This is a template for Python projects that includes automated test cases implemented using pytest.
+RimWorld game save data analyzer
 
-![build](https://github.com/viperior/python-project-template/actions/workflows/python-app.yml/badge.svg)
-
-## Project structure
-
-``` text
-project_root
-├───games_of_chance
-└───tests
-```
+![build](https://github.com/stone-tech-inc/rimhistory/actions/workflows/python-app.yml/badge.svg)
