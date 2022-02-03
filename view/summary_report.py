@@ -1,7 +1,7 @@
 """Generate a summary HTML report for RimWorld save game data"""
 
 import dominate
-from dominate.tags import attr, div, h1, h2, li, link, ul
+from dominate.tags import attr, div, h1, h2, li, link, p, ul
 
 import extract.extract_save_data
 
@@ -26,6 +26,8 @@ def generate_summary_report() -> None:
         with div():
             attr(cls='body')
             h1("RimWorld Save Game Summary")
+            h2("File Size")
+            p(f"{extract.extract_save_data.get_save_file_size()} bytes")
             h2(f"Installed Mods ({len(mod_list)})")
 
             with ul():
