@@ -2,7 +2,7 @@
 import json
 import logging
 
-from rimhistory.rimhistory import extract_mod_list
+import extract.extract_save_data
 
 
 def test_mod_list() -> None:
@@ -15,7 +15,7 @@ def test_mod_list() -> None:
     Returns:
     None
     """
-    mod_list = extract_mod_list()
+    mod_list = extract.extract_save_data.extract_mod_list()
     assert 0 < len(mod_list) < 20000
     logging.debug("List of installed mods = \n%s", json.dumps(mod_list, indent=4))
 
