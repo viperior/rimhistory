@@ -14,7 +14,14 @@ def extract_game_version() -> str:
 
 
 def extract_mod_list() -> list:
-    """Extracts the list of mods installed in the save game"""
+    """Extract the list of mods installed in the save game
+
+    Parameters:
+    None
+
+    Returns:
+    list: A list of dictionaries with each installed mod's metadata
+    """
     root = get_save_file_data(save_file_path=get_save_file_path())
     mod_ids = root.findall("./meta/modIds")
     mod_steam_ids = root.findall("./meta/modSteamIds")
