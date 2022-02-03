@@ -2,6 +2,7 @@
 
 import json
 import logging
+import os
 import time
 import xml.etree.ElementTree
 
@@ -62,6 +63,21 @@ def get_save_file_path() -> str:
     print(rimworld_save_file_path)
 
     return rimworld_save_file_path
+
+
+def get_save_file_size() -> int:
+    """Return the file size of the RimWorld save
+
+    Parameters:
+    None
+
+    Returns:
+    int: The file size as reported by os.stat()
+    """
+    rimworld_save_file_path = get_save_file_path()
+    file_size = os.path.getsize(rimworld_save_file_path)
+
+    return file_size
 
 
 def log_debug_data() -> None:
