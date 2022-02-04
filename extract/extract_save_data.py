@@ -108,10 +108,3 @@ def recurse_children(parent) -> None:
             logging.debug("10 siblings belong to parent element have been scanned. Skipping to next\
                  parent node")
             break
-
-
-if __name__ == "__main__":
-    logging.basicConfig(filename='rimhistory.log', encoding='utf_8', level=logging.DEBUG)
-
-    if input("Display all game save data? (Y/n) ").upper() == "Y":
-        extract_rimworld_save_data()
