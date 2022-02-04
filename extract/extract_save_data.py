@@ -63,7 +63,7 @@ def extract_rimworld_save_data() -> None:
     logging.debug("Recursion complete")
 
 
-def get_save_file_data(save_file_path) -> xml.etree.ElementTree.Element:
+def get_save_file_data(save_file_path: str) -> xml.etree.ElementTree.Element:
     """Return the root element from the RimWorld save game XML data
 
     Parameters:
