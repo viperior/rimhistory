@@ -3,7 +3,6 @@
 import json
 import logging
 import os
-import time
 import xml.etree.ElementTree
 
 
@@ -91,8 +90,6 @@ def recurse_children(parent) -> None:
             logging.debug("10 siblings belong to parent element have been scanned. Skipping to next\
                  parent node")
             break
-
-    time.sleep(0.01)
 
 
 if __name__ == "__main__":
