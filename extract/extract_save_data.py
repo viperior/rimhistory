@@ -76,7 +76,6 @@ def get_element_by_search_pattern(tree: xml.etree.ElementTree, element_search_pa
     """
     # TODO Create an alternative function that returns all matching elements
         # TODO Include an optional parameter to limit the number of elements return
-    logging.debug("-"*80) # FIXME Remove this unnecessary debug message
     logging.debug("Searching for element using pattern: %s", element_search_pattern)
     root = tree.getroot()
     element = root.find(element_search_pattern)
