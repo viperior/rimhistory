@@ -40,7 +40,14 @@ def extract_mod_list() -> list:
 
 
 def extract_rimworld_save_data() -> None:
-    """Recurse through all the data"""
+    """Recurse through all the data
+
+    Parameters:
+    None
+
+    Returns:
+    None
+    """
     save_file_path = get_save_file_path()
     logging.debug("Processing save file: %s", save_file_path)
     root = get_save_file_data(save_file_path=save_file_path)
