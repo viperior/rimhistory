@@ -13,4 +13,4 @@ def test_get_save_file_size() -> None:
     None
     """
     file_size = extract.extract_save_data.get_save_file_size()
-    assert file_size == 6582833
+    assert  6200000 <= file_size <= 6700000
