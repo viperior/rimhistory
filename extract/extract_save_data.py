@@ -91,7 +91,6 @@ def get_save_file_path() -> str:
         config_data = json.load(config_file)
 
     rimworld_save_file_path = config_data["rimworld_save_file_path"]
-    print(rimworld_save_file_path)
 
     return rimworld_save_file_path
 
