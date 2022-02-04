@@ -79,7 +79,14 @@ def get_save_file_data(save_file_path: str) -> xml.etree.ElementTree.Element:
 
 
 def get_save_file_path() -> str:
-    """Return the path to the RimWorld save file to analyze as a string"""
+    """Return the path to the RimWorld save file to analyze as a string
+
+    Parameters:
+    None
+
+    Returns:
+    str: The path to the save game file as configured in config.json
+    """
     with open("config.json", "r", encoding="utf_8") as config_file:
         config_data = json.load(config_file)
 
