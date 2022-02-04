@@ -41,8 +41,12 @@ def extract_mod_list() -> list:
 
 def extract_rimworld_save_data() -> None:
     """Recurse through all the data"""
-    root = get_save_file_data(save_file_path=get_save_file_path())
+    save_file_path = get_save_file_path()
+    logging.debug("Processing save file: %s", save_file_path)
+    root = get_save_file_data(save_file_path=save_file_path)
+    logging.debug("Starting recursion")
     recurse_children(root)
+    logging.debug("Recursion complete")
 
 
 def get_save_file_data(save_file_path) -> xml.etree.ElementTree.Element:
