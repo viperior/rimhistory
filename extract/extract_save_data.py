@@ -64,7 +64,14 @@ def extract_rimworld_save_data() -> None:
 
 
 def get_save_file_data(save_file_path) -> xml.etree.ElementTree.Element:
-    """Return the root object from the RimWorld save game XML data"""
+    """Return the root element from the RimWorld save game XML data
+
+    Parameters:
+    save_file_path (str): The path to the save file as a string
+
+    Returns:
+    xml.etree.ElementTree.Element: The save data XML tree's root element
+    """
     tree = xml.etree.ElementTree.parse(save_file_path)
     root = tree.getroot()
 
