@@ -91,7 +91,14 @@ def get_save_file_size() -> int:
 
 
 def recurse_children(parent) -> None:
-    """Recurse through all the children of an element"""
+    """Recurse through all the children of an element
+
+    Parameters:
+    None
+
+    Returns:
+    None
+    """
     logging.debug("tag: %s; attributes: %s; text: %s", parent.tag, parent.attrib, parent.text)
 
     for index, child in enumerate(parent):
