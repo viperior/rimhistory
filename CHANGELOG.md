@@ -9,8 +9,8 @@
     * List of installed mods
 
 ### Testing
-* Use `coverage` to measure the code coverage during pytest execution and require 95% coverage
-* Add test cases to increase overall test coverage from 78% to 85%
+* Use `coverage` to measure the code coverage during pytest execution and require 100% code coverage ([coverage documentation](https://coverage.readthedocs.io/en/6.3.1/))
+* Add test cases to increase overall test coverage from 78% to 100%
 
 ## [0.1.0](https://github.com/stone-tech-inc/rimhistory/tree/0.1.0) (2022-02-02)
 
