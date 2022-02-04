@@ -1,12 +1,12 @@
-"""Test the modify_save_file.find_target_element function"""
+"""Test the extract_save_data.get_element_by_search_pattern function"""
 
 import xml.etree.ElementTree
 
-import extract.modify_save_file
+import extract.extract_save_data
 
 
-def test_modify_save_file() -> None:
-    """Test the modify_save_file.find_target_element function
+def test_get_element_by_search_pattern() -> None:
+    """Test the extract_save_data.get_element_by_search_pattern function
 
     Parameters:
     None
@@ -18,6 +18,6 @@ def test_modify_save_file() -> None:
 
     # TODO After refactor/rename of the function is complete, test this to ensure it works
     # TODO Change this test case to be parametrized and add additional search patterns as test input
-    element = extract.modify_save_file.find_target_element(search_pattern)
+    element = extract.extract_save_data.get_element_by_search_pattern(search_pattern)
 
     assert isinstance(element, xml.etree.ElementTree.Element)

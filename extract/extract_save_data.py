@@ -63,6 +63,32 @@ def extract_rimworld_save_data() -> None:
     logging.debug("Recursion complete")
 
 
+def get_element_by_search_pattern(element_search_pattern: str) -> xml.etree.ElementTree.Element:
+    """Search for an XML element in a RimWorld save file using a search pattern
+
+    Parameters:
+    element_search_pattern (str): Target element search pattern
+
+    Returns:
+    xml.etree.ElementTree.Element: The first instance of the element matching the search pattern
+    """
+    # TODO Create an alternative function that returns all matching elements
+        # TODO Include an optional parameter to limit the number of elements return
+    logging.debug("-"*80) # FIXME Remove this unnecessary debug message
+    logging.debug("Searching for element using pattern: %s", element_search_pattern)
+    tree = xml.etree.ElementTree.parse("data/demosave truncated.rws")
+    root = tree.getroot()
+    element = root.find(element_search_pattern)
+    logging.debug("Element information:\nTag: %s\nAttributes: %s\nText: %s\nKeys: %s",
+        element.tag, element.attrib, element.text, element.keys())
+
+    for child in element:
+        logging.debug("Child element information:\nTag: %s\nAttributes: %s\nText: %s\nKeys: %s",
+        child.tag, child.attrib, child.text, child.keys())
+
+    return element
+
+
 def get_save_file_data(save_file_path: str) -> xml.etree.ElementTree.Element:
     """Return the root element from the RimWorld save game XML data
 

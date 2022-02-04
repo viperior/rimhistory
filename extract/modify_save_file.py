@@ -7,31 +7,6 @@ import xml.etree.ElementTree
 import tqdm
 
 
-def find_target_element(element_search_pattern: str) -> None:
-    """Search for an XML element in a RimWorld save file using a search pattern
-
-    Parameters:
-    element_search_pattern (str): Target element search pattern
-
-    Returns:
-    None
-    """
-    # TODO Refactor this function to return an xml.etree.ElementTree.Element
-    # TODO Create an alternative function that returns all matching elements
-        # TODO Include an optional parameter to limit the number of elements return
-    logging.debug("-"*80) # FIXME Remove this unnecessary debug message
-    logging.debug("Searching for element using pattern: %s", element_search_pattern)
-    tree = xml.etree.ElementTree.parse("data/demosave truncated.rws")
-    root = tree.getroot()
-    element = root.find(element_search_pattern)
-    logging.debug("Element information:\nTag: %s\nAttributes: %s\nText: %s\nKeys: %s",
-        element.tag, element.attrib, element.text, element.keys())
-
-    for child in element:
-        logging.debug("Child element information:\nTag: %s\nAttributes: %s\nText: %s\nKeys: %s",
-        child.tag, child.attrib, child.text, child.keys())
-
-
 def get_element_lineage(element: xml.etree.ElementTree.Element,
     root: xml.etree.ElementTree.Element, lineage: str=None) -> str:
     """Return the lineage of an element as a string showing the hierarchy of tags going back to the
