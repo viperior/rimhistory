@@ -26,6 +26,8 @@ def generate_summary_report() -> None:
         with div():
             attr(cls='body')
             h1("RimWorld Save Game Summary")
+            h2("Game Version")
+            p(extract.extract_save_data.extract_game_version())
             h2("File Size")
             p(f"{extract.extract_save_data.get_save_file_size()} bytes")
             h2(f"Installed Mods ({len(mod_list)})")
