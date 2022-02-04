@@ -16,7 +16,10 @@ def find_target_element(element_search_pattern: str) -> None:
     Returns:
     None
     """
-    logging.debug("-"*80)
+    # TODO Refactor this function to return an xml.etree.ElementTree.Element
+    # TODO Create an alternative function that returns all matching elements
+        # TODO Include an optional parameter to limit the number of elements return
+    logging.debug("-"*80) # FIXME Remove this unnecessary debug message
     logging.debug("Searching for element using pattern: %s", element_search_pattern)
     tree = xml.etree.ElementTree.parse("data/demosave truncated.rws")
     root = tree.getroot()
