@@ -45,20 +45,18 @@ def get_element_lineage(element: xml.etree.ElementTree.Element,
     return get_element_lineage(element=parent, root=root, lineage=lineage)
 
 
-def process_save_file(input_file_path: str, output_file_path: str) -> None:
+def process_save_file(input_file_path: str, output_file_path: str, xml_elements_remove_list: list)\
+    -> None:
     """Process a raw RimWorld game save file by removing unnecessary information
 
     Parameters:
     input_file_path (str): The path to the save file to process
     output_file_path (str): The path to store the modified XML data
+    xml_elements_remove_list (list): A list of XPath patterns to use to remove matching XML elements
 
     Returns:
     None
     """
-    with open("defaults.json", "r", encoding="utf_8") as defaults_file:
-        defaults_data = json.load(defaults_file)
-
-    xml_elements_remove_list = defaults_data["xml_elements_remove_list"]
     tree = xml.etree.ElementTree.parse(input_file_path)
 
     for search_pattern in tqdm.tqdm(xml_elements_remove_list):
@@ -94,7 +92,13 @@ def process_save_file_user_prompt() -> None:
         elif processing_method_response == 2:
             input_file_path = input("Input file path: ")
             output_file_path = input("Output file path: ")
-            process_save_file(input_file_path=input_file_path, output_file_path=output_file_path)
+
+            with open("defaults.json", "r", encoding="utf_8") as defaults_file:
+                defaults_data = json.load(defaults_file)
+
+            xml_elements_remove_list = defaults_data["xml_elements_remove_list"]
+            process_save_file(input_file_path=input_file_path, output_file_path=output_file_path,
+                xml_elements_remove_list=xml_elements_remove_list)
 
 
 def process_save_file_using_config() -> None:
@@ -113,9 +117,16 @@ def process_save_file_using_config() -> None:
 
     rimworld_save_file_path = config_data["rimworld_save_file_path"]
     processed_file_path = config_data["processed_save_file_path"]
+
+    with open("defaults.json", "r", encoding="utf_8") as defaults_file:
+        defaults_data = json.load(defaults_file)
+
+    xml_elements_remove_list = defaults_data["xml_elements_remove_list"]
+
     process_save_file(
         input_file_path=rimworld_save_file_path,
-        output_file_path=processed_file_path
+        output_file_path=processed_file_path,
+        xml_elements_remove_list=xml_elements_remove_list
     )
 
 
