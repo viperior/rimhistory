@@ -2,21 +2,23 @@
 
 import xml.etree.ElementTree
 
+import pytest
+
 import extract.modify_save_file
 
 
-def test_remove_matching_elements(config_data: dict) -> None:
+@pytest.mark.parametrize("target_tag", ["world", "playerFaction"])
+def test_remove_matching_elements(config_data: dict, target_tag: str) -> None:
     """Test the remove_matching_elements function
 
     Parameters:
     config_data (dict): The project configuration data as a dictionary
+    target_tag (str): The XML tag type to remove from the tree
 
     Returns:
     None
     """
-    # TODO Parametrize this test case with a list of dictionaries (path, target_tag)
     save_file_path = config_data["rimworld_save_file_path"]
-    target_tag = "world"
     remove_element_pattern = f".//{target_tag}"
     tree = xml.etree.ElementTree.parse(save_file_path)
     root = tree.getroot()
