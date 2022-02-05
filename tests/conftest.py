@@ -19,7 +19,7 @@ def config_data() -> dict:
     dict: Dictionary containing project configuration settings
     """
     config_file_name = "config.json"
-    logging.debug("Loading configuration data from: %s")
+    logging.debug("Loading configuration data from: %s", config_file_name)
 
     with open(config_file_name, "r", encoding="utf_8") as config_file:
         project_config_data = json.load(config_file)
