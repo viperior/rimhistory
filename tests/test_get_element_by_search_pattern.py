@@ -39,7 +39,7 @@ def test_get_element_by_search_pattern(config_data: dict, search_pattern: str) -
 
 @pytest.mark.parametrize("search_pattern", get_search_patterns())
 def test_get_elements_by_search_pattern(config_data: dict, search_pattern: str) -> None:
-    """Test the extract_save_data.get_element_by_search_pattern function
+    """Test the extract_save_data.get_elements_by_search_pattern function
 
     Parameters:
     config_data (dict): The project configuration data as a dictionary
