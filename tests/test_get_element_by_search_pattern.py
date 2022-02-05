@@ -2,10 +2,13 @@
 
 import xml.etree.ElementTree
 
+import pytest
+
 import extract.extract_save_data
 
 
-def test_get_element_by_search_pattern(config_data: dict) -> None:
+@pytest.mark.parametrize("search_pattern", [".//world", ".//thing"])
+def test_get_element_by_search_pattern(config_data: dict, search_pattern: str) -> None:
     """Test the extract_save_data.get_element_by_search_pattern function
 
     Parameters:
@@ -14,8 +17,6 @@ def test_get_element_by_search_pattern(config_data: dict) -> None:
     Returns:
     None
     """
-    search_pattern = ".//world"
-    # TODO Change this test case to be parametrized and add additional search patterns as test input
     save_file_path = config_data["rimworld_save_file_path"]
     tree = xml.etree.ElementTree.parse(save_file_path)
     element = extract.extract_save_data.get_element_by_search_pattern(tree=tree,
