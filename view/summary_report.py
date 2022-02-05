@@ -43,5 +43,11 @@ def generate_summary_report(output_directory: str, output_file_name: str) -> Non
 
                     li(mod_list_item_content)
 
+            h2(f"Colonists ({extract.extract_save_data.get_pawn_count()})")
+
+            with ul():
+                for pawn in extract.extract_save_data.get_pawn_data():
+                    li(f"{pawn['pawn_name_full']}, age {pawn['pawn_biological_age']}")
+
     with open(output_path, "w", encoding="utf_8") as output_file:
         output_file.write(str(doc))
