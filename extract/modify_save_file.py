@@ -41,10 +41,8 @@ def get_element_lineage(element: xml.etree.ElementTree.Element,
     # Prepend the detected parent to the lineage string
     lineage = f"{parent.tag} > {lineage}"
 
-    # Recurse upward in the hierarchy
-    get_element_lineage(element=parent, root=root, lineage=lineage)
-
-    return None
+    # Recurse upward in the hierarchy, eventually returning the complete hierarchy
+    return get_element_lineage(element=parent, root=root, lineage=lineage)
 
 
 def process_save_file(input_file_path: str, output_file_path: str) -> None:
