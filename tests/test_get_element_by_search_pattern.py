@@ -53,8 +53,11 @@ def test_get_elements_by_search_pattern(config_data: dict, search_pattern: str) 
     element_list = extract.extract_save_data.get_elements_by_search_pattern(tree=tree,
         element_search_pattern=search_pattern)
 
+    # Validate the list of elements for data type and minimum length
     assert isinstance(element_list, list)
     assert len(element_list) > 0
+
+    # Test the first element in the list for data type
     assert isinstance(element_list[0], xml.etree.ElementTree.Element)
 
 
