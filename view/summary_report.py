@@ -6,17 +6,18 @@ from dominate.tags import attr, div, h1, h2, li, link, p, ul
 import extract.extract_save_data
 
 
-def generate_summary_report() -> None:
+def generate_summary_report(output_directory: str, output_file_name: str) -> None:
     """Generate an HTML report with a list of the installed mods found
 
     Parameters:
-    None
+    output_directory (str): The directory to store the generated report
+    output_file_name (str): The name to use for the report HTML file
 
     Returns:
     None
     """
     mod_list = extract.extract_save_data.extract_mod_list()
-    output_path = "data/reports/summary.html"
+    output_path = f"{output_directory}/{output_file_name}.html"
     doc = dominate.document(title='RimWorld Save Game Summary Report')
 
     with doc.head:
