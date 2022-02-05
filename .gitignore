@@ -136,4 +136,5 @@ dmypy.json
 
 # rimhistory custom ignore files
 data/
+tmpdir/
 config.json
