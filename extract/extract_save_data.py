@@ -153,6 +153,50 @@ def get_element_lineage(element: xml.etree.ElementTree.Element,
     return get_element_lineage(element=parent, root=root, lineage=lineage)
 
 
+def get_pawn_count() -> int:
+    """Return the number of pawns detected in the save game data
+
+    Parameters:
+    tree (xml.etree.ElementTree): The XML tree to search
+
+    Returns:
+    int: The number of pawns found in the XML data
+    """
+    target_tag = "pawnData"
+    root = get_save_file_data(get_save_file_path())
+    pawn_data_elements = root.findall(f".//{target_tag}")
+
+    return len(list(pawn_data_elements))
+
+
+def get_pawn_data() -> list:
+    """Return a list of dictionaries containing data about the pawns extracted from the save file
+
+    Parameters:
+    None
+
+    Returns:
+    None
+    """
+    target_tag = "pawnData"
+    root = get_save_file_data(get_save_file_path())
+    pawn_data_elements = root.findall(f".//{target_tag}")
+    pawn_data = []
+
+    for element in pawn_data_elements:
+        current_pawn = {
+            "pawn_id": element.find(".//pawn"),
+            "pawn_name_first": element.find(".//first").text,
+            "pawn_name_nick": element.find(".//nick").text,
+            "pawn_name_last": element.find(".//last").text,
+            "pawn_biological_age": element.find(".//age").text,
+            "pawn_chronological_age": element.find(".//chronologicalAge").text,
+        }
+        pawn_data.append(current_pawn)
+
+    return pawn_data_elements
+
+
 def get_save_file_data(save_file_path: str) -> xml.etree.ElementTree.Element:
     """Return the root element from the RimWorld save game XML data
 
