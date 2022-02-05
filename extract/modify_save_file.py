@@ -180,7 +180,3 @@ def remove_matching_elements(tree: xml.etree.ElementTree, search_pattern: str, l
     logging.debug("%d elements removed total", elements_removed_count)
 
     return tree
-
-
-if __name__ == "__main__":
-    process_save_file_user_prompt()
