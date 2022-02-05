@@ -1,9 +1,28 @@
 """Generate a summary HTML report for RimWorld save game data"""
 
+import logging
+import os
+
 import dominate
 from dominate.tags import attr, div, h1, h2, li, link, p, ul
 
 import extract.extract_save_data
+
+
+def create_directory_if_not_exists(target_directory: str) -> None:
+    """Create the requested directory, if it does not already exist
+
+    Parameters:
+    target_directory (str): The directory to create
+
+    Returns:
+    None
+    """
+    if os.path.isdir(target_directory):
+        logging.debug("The directory already exists: %s", target_directory)
+    else:
+        logging.debug("The directory does not exist, creating: %s", target_directory)
+        os.mkdir(target_directory)
 
 
 def generate_summary_report(output_directory: str, output_file_name: str) -> None:
@@ -42,6 +61,8 @@ def generate_summary_report(output_directory: str, output_file_name: str) -> Non
                         mod_list_item_content += f" (Steam ID: {mod['mod_steam_id']})"
 
                     li(mod_list_item_content)
+
+    create_directory_if_not_exists(output_directory)
 
     with open(output_path, "w", encoding="utf_8") as output_file:
         output_file.write(str(doc))
