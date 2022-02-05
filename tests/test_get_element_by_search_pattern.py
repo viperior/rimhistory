@@ -56,3 +56,24 @@ def test_get_elements_by_search_pattern(config_data: dict, search_pattern: str) 
     assert isinstance(element_list, list)
     assert len(element_list) > 0
     assert isinstance(element_list[0], xml.etree.ElementTree.Element)
+
+
+@pytest.mark.parametrize("search_pattern", get_search_patterns())
+def test_get_elements_by_search_pattern_with_limit(config_data: dict, search_pattern: str) -> None:
+    """Test the extract_save_data.get_elements_by_search_pattern function using the limit parameter
+
+    Parameters:
+    config_data (dict): The project configuration data as a dictionary
+    search_pattern (str): Target XML element search pattern
+
+    Returns:
+    None
+    """
+    save_file_path = config_data["rimworld_save_file_path"]
+    tree = xml.etree.ElementTree.parse(save_file_path)
+    element_list = extract.extract_save_data.get_elements_by_search_pattern(tree=tree,
+        element_search_pattern=search_pattern, limit=3)
+
+    assert isinstance(element_list, list)
+    assert len(element_list) > 0
+    assert isinstance(element_list[0], xml.etree.ElementTree.Element)
