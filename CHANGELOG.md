@@ -5,11 +5,11 @@
 ### New features
 
 * HTML report with summary information:
-    * Game version
-    * Save file size
-    * List of installed mods
-    * Pawn information
-    * Flora presence and growth statistics
+  * Game version
+  * Save file size
+  * List of installed mods
+  * Pawn information
+  * Flora presence and growth statistics
 
 ### Testing
 
