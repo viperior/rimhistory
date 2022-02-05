@@ -74,8 +74,6 @@ def get_element_by_search_pattern(tree: xml.etree.ElementTree, element_search_pa
     Returns:
     xml.etree.ElementTree.Element: The first instance of the element matching the search pattern
     """
-    # TODO Create an alternative function that returns all matching elements
-        # TODO Include an optional parameter to limit the number of elements return
     logging.debug("Searching for element using pattern: %s", element_search_pattern)
     root = tree.getroot()
     element = root.find(element_search_pattern)
@@ -87,6 +85,42 @@ def get_element_by_search_pattern(tree: xml.etree.ElementTree, element_search_pa
         child.tag, child.attrib, child.text, child.keys())
 
     return element
+
+
+def get_elements_by_search_pattern(tree: xml.etree.ElementTree, element_search_pattern: str,
+    limit: int=None) -> list:
+    """Search for an XML element in a RimWorld save file using a search pattern
+
+    Parameters:
+    tree (xml.etree.ElementTree): The XML tree to search
+    element_search_pattern (str): Target element search pattern
+    limit (int): The maximum number of matching elements to return (default None)
+
+    Returns:
+    list: A list of XML elements matching the search pattern
+    """
+    logging.debug("Searching for all elements using pattern: %s", element_search_pattern)
+    root = tree.getroot()
+    elements = root.findall(element_search_pattern)
+    element_list = []
+
+    for element in elements:
+        logging.debug("Element information:\nTag: %s\nAttributes: %s\nText: %s\nKeys: %s",
+            element.tag, element.attrib, element.text, element.keys())
+        element_list.append(element)
+
+        for child in element:
+            logging.debug("Child element information:\nTag: %s\nAttributes: %s\nText: %s\nKeys: %s",
+            child.tag, child.attrib, child.text, child.keys())
+
+        # Enforce limit
+        if limit is not None:
+            if len(element_list) >= limit:
+                logging.debug("Stopping returning additional elements due to having reached the \
+                    limit of elements to return (%d)", limit)
+                break
+
+    return element_list
 
 
 def get_save_file_data(save_file_path: str) -> xml.etree.ElementTree.Element:
