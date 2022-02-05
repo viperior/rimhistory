@@ -6,44 +6,6 @@ import xml.etree.ElementTree
 import tqdm
 
 
-def get_element_lineage(element: xml.etree.ElementTree.Element,
-    root: xml.etree.ElementTree.Element, lineage: str=None) -> str:
-    """Return the lineage of an element as a string showing the hierarchy of tags going back to the
-    root element of the XML document
-
-    Parameters:
-    element (xml.etree.ElementTree.Element): The element being analyzed
-    root (xml.etree.ElementTree.Element): The root element of the XML document
-    lineage (str): The string representation of the element hierarchy
-
-    Returns:
-    str: String representation of the lineage of the XML element
-    """
-
-    # Add the starting element to the lineage string
-    if lineage is None:
-        logging.debug("Initializing the lineage string with the starting element")
-        lineage = element.tag
-
-    # Check to see if the element has a parent element
-    parent = root.find(f".//{element.tag}/..")
-
-    # The top level has been reached. End recursion by returning the lineage data
-    if parent is None:
-        logging.debug("Tag lineage analysis is complete. Returning lineage:\n%s", lineage)
-        return lineage
-
-    # This block only executes when there is a valid parent
-    logging.debug("The current element, %s, has a parent element, %s.\nRecursing XML tree",
-        element.tag, parent.tag)
-
-    # Prepend the detected parent to the lineage string
-    lineage = f"{parent.tag} > {lineage}"
-
-    # Recurse upward in the hierarchy, eventually returning the complete hierarchy
-    return get_element_lineage(element=parent, root=root, lineage=lineage)
-
-
 def process_save_file(input_file_path: str, output_file_path: str, xml_elements_remove_list: list)\
     -> None:
     """Process a raw RimWorld game save file by removing unnecessary information

@@ -5,7 +5,7 @@ import xml.etree.ElementTree
 
 import pytest
 
-import extract.modify_save_file
+import extract.extract_save_data
 
 
 @pytest.mark.parametrize(
@@ -30,7 +30,7 @@ def test_get_element_lineage(config_data: dict, target_tag: str, expected: str) 
     root = tree.getroot()
     element = root.find(f".//{target_tag}")
     logging.debug("Determining the lineage of XML tag: %s", element.tag)
-    lineage = extract.modify_save_file.get_element_lineage(element=element, root=root)
+    lineage = extract.extract_save_data.get_element_lineage(element=element, root=root)
     logging.debug("Element lineage = %s", lineage)
 
     assert lineage == expected
