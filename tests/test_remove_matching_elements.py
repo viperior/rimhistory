@@ -1,25 +1,20 @@
 """Test the remove_matching_elements function"""
 
-import json
 import xml.etree.ElementTree
 
 import extract.modify_save_file
 
 
-def test_remove_matching_elements() -> None:
+def test_remove_matching_elements(config_data: dict) -> None:
     """Test the remove_matching_elements function
 
     Parameters:
-    None
+    config_data (dict): The project configuration data as a dictionary
 
     Returns:
     None
     """
     # TODO Parametrize this test case with a list of dictionaries (path, target_tag)
-    # TODO Replace the reference to config.json with a pytest fixture (session-scope)
-    with open("config.json", "r", encoding="utf_8") as config_file:
-        config_data = json.load(config_file)
-
     save_file_path = config_data["rimworld_save_file_path"]
     target_tag = "world"
     remove_element_pattern = f".//{target_tag}"
