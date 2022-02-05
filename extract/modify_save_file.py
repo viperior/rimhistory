@@ -72,35 +72,6 @@ def process_save_file(input_file_path: str, output_file_path: str, xml_elements_
         input_file_size, output_file_size, size_difference, size_difference_percent)
 
 
-def process_save_file_user_prompt() -> None:
-    """Prompt the user for instructions on whether and how to process their game save file
-
-    Parameters:
-    None
-
-    Returns:
-    None
-    """
-    process_file_prompt = "Do you want to process your save file? (Y/n) "
-
-    if input(process_file_prompt).upper() == "Y":
-        processing_method_prompt = "1 - Use paths from config.json\n2 - Enter custom paths now\n"
-        processing_method_response = int(input(processing_method_prompt))
-
-        if processing_method_response == 1:
-            process_save_file_using_config()
-        elif processing_method_response == 2:
-            input_file_path = input("Input file path: ")
-            output_file_path = input("Output file path: ")
-
-            with open("defaults.json", "r", encoding="utf_8") as defaults_file:
-                defaults_data = json.load(defaults_file)
-
-            xml_elements_remove_list = defaults_data["xml_elements_remove_list"]
-            process_save_file(input_file_path=input_file_path, output_file_path=output_file_path,
-                xml_elements_remove_list=xml_elements_remove_list)
-
-
 def process_save_file_using_config() -> None:
     """Process a raw RimWorld game save file using the paths configured in config.json
 
