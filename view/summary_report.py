@@ -49,5 +49,25 @@ def generate_summary_report(output_directory: str, output_file_name: str) -> Non
                 for pawn in extract.extract_save_data.get_pawn_data():
                     li(f"{pawn['pawn_name_full']}, age {pawn['pawn_biological_age']}")
 
+            h2(f"Plants ({extract.extract_save_data.get_plant_count()})")
+
+            with ul():
+                displayed_plant_types = []
+
+                for plant in extract.extract_save_data.get_plant_data():
+                    if plant['plant_definition'] in displayed_plant_types:
+                        continue
+
+                    displayed_plant_types.append(plant['plant_definition'])
+                    plant_information = (
+                        f"{plant['plant_definition']} - "
+                        f"{plant['plant_growth']} - "
+                        f"{plant['plant_position']}"
+                    )
+                    li(plant_information)
+
+                    if len(displayed_plant_types) >= 20:
+                        break
+
     with open(output_path, "w", encoding="utf_8") as output_file:
         output_file.write(str(doc))

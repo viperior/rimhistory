@@ -202,6 +202,58 @@ def get_pawn_data() -> list:
     return pawn_data
 
 
+def get_plant_count() -> int:
+    """Return the number of plants identified in the save game file
+
+    Parameters:
+    None
+
+    Returns:
+    int: The number of plants identified in the save game file
+    """
+    search_pattern = ".//thing[@Class='Plant']"
+    root = get_save_file_data(get_save_file_path())
+    xml_elements = root.findall(search_pattern)
+    element_count = 0
+
+    for index, element in enumerate(xml_elements):
+        if index % 1000 == 0:
+            logging.debug("Loading data from element #%d: %s", index,
+                get_element_lineage(element=element, root=root))
+
+        element_count += 1
+
+    return element_count
+
+
+def get_plant_data() -> list:
+    """Return a list of dictionaries containing data about the plants extracted from the save file
+
+    Parameters:
+    None
+
+    Returns:
+    None
+    """
+    search_pattern = ".//thing[@Class='Plant']"
+    root = get_save_file_data(get_save_file_path())
+    xml_elements = root.findall(search_pattern)
+    return_data = []
+
+    for element in xml_elements:
+        current_element_data = {
+            "plant_id": element.find(".//id").text,
+            "plant_definition": element.find(".//def").text,
+            "plant_map_id": element.find(".//map").text,
+            "plant_position": element.find(".//pos").text,
+            "plant_growth": element.find(".//growth").text,
+            "plant_age": element.find(".//age").text,
+        }
+        return_data.append(current_element_data)
+
+    return return_data
+
+
 def get_save_file_data(save_file_path: str) -> xml.etree.ElementTree.Element:
     """Return the root element from the RimWorld save game XML data
 
