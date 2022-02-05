@@ -7,6 +7,7 @@
     * Game version
     * Save file size
     * List of installed mods
+    * Flora presence and growth statistics
 
 ### Testing
 * Use `coverage` to measure the code coverage during pytest execution and require 100% code coverage ([coverage documentation](https://coverage.readthedocs.io/en/6.3.1/))
