@@ -1,12 +1,13 @@
 # Changelog
 
-## [0.2.0](https://github.com/stone-tech-inc/rimhistory/tree/0.2.0) (not yet released)
+## [0.2.0](https://github.com/stone-tech-inc/rimhistory/tree/0.2.0) (2022-02-05)
 
 ### New features
 * HTML report with summary information:
     * Game version
     * Save file size
     * List of installed mods
+    * Pawn information
     * Flora presence and growth statistics
 
 ### Testing
