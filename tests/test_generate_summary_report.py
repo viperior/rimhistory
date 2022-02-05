@@ -2,26 +2,48 @@
 
 import logging
 
+import pytest
+
 import view.summary_report
 
 
-def test_generate_summary_report() -> None:
-    """Test the view.summary_report.generate_summary_report function
+def get_test_input_data() -> list:
+    """Return a list of dictionaries containing test input metadata
 
     Parameters:
     None
 
     Returns:
+    list: A list of dictionaries with test input metadata
+    """
+    test_input = [
+        {
+            "output_directory": "data/reports",
+            "output_file_name_base": "summary_report_test_001"
+        },
+        {
+            "output_directory": "data/reports",
+            "output_file_name_base": "summary_report_test_002"
+        }
+    ]
+
+    return test_input
+
+
+@pytest.mark.parametrize("test_input", get_test_input_data())
+def test_generate_summary_report(test_input: list) -> None:
+    """Test the view.summary_report.generate_summary_report function
+
+    Parameters:
+    test_input (list): The list of test input items
+
+    Returns:
     None
     """
-    # Parameters
-    report_output_directory = "data/reports"
-    report_file_name_base = "summary_report"
-
     # Generate the report
-    view.summary_report.generate_summary_report(output_directory=report_output_directory,
-        output_file_name=report_file_name_base)
-    output_path = f"{report_output_directory}/{report_file_name_base}.html"
+    view.summary_report.generate_summary_report(output_directory=test_input["output_directory"],
+        output_file_name=test_input["output_file_name_base"])
+    output_path = f"{test_input['output_directory']}/{test_input['output_file_name_base']}.html"
 
     # Test the generated report
     with open(output_path, "r", encoding="utf_8") as report_file:
