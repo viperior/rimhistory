@@ -7,7 +7,19 @@ import pytest
 import extract.extract_save_data
 
 
-@pytest.mark.parametrize("search_pattern", [".//world", ".//thing"])
+def get_search_patterns() -> list:
+    """Return a list of search patterns to use as test input data
+
+    Parameters:
+    None
+
+    Returns:
+    list: A list of XPath search patterns
+    """
+    return [".//world", ".//thing"]
+
+
+@pytest.mark.parametrize("search_pattern", get_search_patterns())
 def test_get_element_by_search_pattern(config_data: dict, search_pattern: str) -> None:
     """Test the extract_save_data.get_element_by_search_pattern function
 
@@ -25,7 +37,7 @@ def test_get_element_by_search_pattern(config_data: dict, search_pattern: str) -
     assert isinstance(element, xml.etree.ElementTree.Element)
 
 
-@pytest.mark.parametrize("search_pattern", [".//world", ".//thing"])
+@pytest.mark.parametrize("search_pattern", get_search_patterns())
 def test_get_elements_by_search_pattern(config_data: dict, search_pattern: str) -> None:
     """Test the extract_save_data.get_element_by_search_pattern function
 
