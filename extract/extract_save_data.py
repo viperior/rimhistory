@@ -194,7 +194,7 @@ def get_pawn_data() -> list:
         }
         pawn_data.append(current_pawn)
 
-    return pawn_data_elements
+    return pawn_data
 
 
 def get_save_file_data(save_file_path: str) -> xml.etree.ElementTree.Element:
