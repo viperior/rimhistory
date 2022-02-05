@@ -81,8 +81,6 @@ def process_save_file_using_config() -> None:
     Returns:
     None
     """
-    logging.basicConfig(filename="modify_save_file.log", encoding="utf_8", level=logging.INFO)
-
     with open("config.json", "r", encoding="utf_8") as config_file:
         config_data = json.load(config_file)
 
