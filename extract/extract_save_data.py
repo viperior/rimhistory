@@ -185,7 +185,7 @@ def get_pawn_data() -> list:
 
     for element in pawn_data_elements:
         current_pawn = {
-            "pawn_id": element.find(".//pawn"),
+            "pawn_id": element.find(".//pawn").text,
             "pawn_name_first": element.find(".//first").text,
             "pawn_name_nick": element.find(".//nick").text,
             "pawn_name_last": element.find(".//last").text,
