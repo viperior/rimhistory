@@ -70,7 +70,7 @@ def process_save_file(input_file_path: str, output_file_path: str) -> None:
     output_file_size = os.path.getsize(output_file_path)
     size_difference = input_file_size - output_file_size
     size_difference_percent = round((size_difference / input_file_size) * 100, 2)
-    logging.info("Input file size = %d\nOutput file size = %d\nFile size reduced by %d (%.2f%%)",
+    logging.debug("Input file size = %d\nOutput file size = %d\nFile size reduced by %d (%.2f%%)",
         input_file_size, output_file_size, size_difference, size_difference_percent)
 
 
