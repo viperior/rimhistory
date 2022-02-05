@@ -80,10 +80,6 @@ def get_element_by_search_pattern(tree: xml.etree.ElementTree, element_search_pa
     logging.debug("Element information:\nTag: %s\nAttributes: %s\nText: %s\nKeys: %s",
         element.tag, element.attrib, element.text, element.keys())
 
-    for child in element:
-        logging.debug("Child element information:\nTag: %s\nAttributes: %s\nText: %s\nKeys: %s",
-        child.tag, child.attrib, child.text, child.keys())
-
     return element
 
 
@@ -108,10 +104,6 @@ def get_elements_by_search_pattern(tree: xml.etree.ElementTree, element_search_p
         logging.debug("Element information:\nTag: %s\nAttributes: %s\nText: %s\nKeys: %s",
             element.tag, element.attrib, element.text, element.keys())
         element_list.append(element)
-
-        for child in element:
-            logging.debug("Child element information:\nTag: %s\nAttributes: %s\nText: %s\nKeys: %s",
-            child.tag, child.attrib, child.text, child.keys())
 
         # Enforce limit
         if limit is not None:
