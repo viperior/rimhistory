@@ -1,5 +1,4 @@
 """Utilities to perform modifications to a RimWorld save file (XML)"""
-import json
 import logging
 import os
 import xml.etree.ElementTree
@@ -70,33 +69,6 @@ def process_save_file(input_file_path: str, output_file_path: str, xml_elements_
     size_difference_percent = round((size_difference / input_file_size) * 100, 2)
     logging.debug("Input file size = %d\nOutput file size = %d\nFile size reduced by %d (%.2f%%)",
         input_file_size, output_file_size, size_difference, size_difference_percent)
-
-
-def process_save_file_using_config() -> None:
-    """Process a raw RimWorld game save file using the paths configured in config.json
-
-    Parameters:
-    None
-
-    Returns:
-    None
-    """
-    with open("config.json", "r", encoding="utf_8") as config_file:
-        config_data = json.load(config_file)
-
-    rimworld_save_file_path = config_data["rimworld_save_file_path"]
-    processed_file_path = config_data["processed_save_file_path"]
-
-    with open("defaults.json", "r", encoding="utf_8") as defaults_file:
-        defaults_data = json.load(defaults_file)
-
-    xml_elements_remove_list = defaults_data["xml_elements_remove_list"]
-
-    process_save_file(
-        input_file_path=rimworld_save_file_path,
-        output_file_path=processed_file_path,
-        xml_elements_remove_list=xml_elements_remove_list
-    )
 
 
 def remove_matching_elements(tree: xml.etree.ElementTree, search_pattern: str, limit: int=None) ->\
