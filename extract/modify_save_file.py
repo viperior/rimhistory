@@ -98,11 +98,9 @@ def remove_matching_elements(tree: xml.etree.ElementTree, search_pattern: str, l
                 element.tag)
             parent_element_search_pattern = f"{search_pattern}/.."
             parent = root.find(parent_element_search_pattern)
+            assert isinstance(parent, xml.etree.ElementTree.Element)
 
-            if parent is None:
-                logging.error("Unexpected error occurred when trying to lookup parent element\n\
-                    Search pattern used: %s", parent_element_search_pattern)
-            else:
+            if parent is not None:
                 logging.debug("Parent element found. Proceeding with removal of child element")
                 parent.remove(element)
                 elements_removed_count += 1
