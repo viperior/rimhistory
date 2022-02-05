@@ -192,6 +192,11 @@ def get_pawn_data() -> list:
             "pawn_biological_age": element.find(".//age").text,
             "pawn_chronological_age": element.find(".//chronologicalAge").text,
         }
+        current_pawn["pawn_name_full"] = (
+            f"{current_pawn['pawn_name_first']} "
+            f"\"{current_pawn['pawn_name_nick']}\" "
+            f"{current_pawn['pawn_name_last']}"
+        )
         pawn_data.append(current_pawn)
 
     return pawn_data
