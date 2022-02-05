@@ -1,4 +1,4 @@
-"""Test the extract_save_data.get_element_by_search_pattern function"""
+"""Test the XML element retrieval functions in extract_save_data"""
 
 import json
 import xml.etree.ElementTree
