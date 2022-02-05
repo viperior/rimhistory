@@ -19,7 +19,7 @@ def test_python_code_quality() -> None:
 
     if pylint_errors_detected: # pragma: no cover
         logging.error("Pylint errors detected:\n%s", standard_output_data)
-    else:
+    else: # pragma: no cover
         logging.debug("Pylint success output:\n%s", standard_output_data)
 
     assert pylint_error_free_search_phrase in standard_output_data
