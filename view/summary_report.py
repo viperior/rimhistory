@@ -44,7 +44,3 @@ def generate_summary_report() -> None:
 
     with open(output_path, "w", encoding="utf_8") as output_file:
         output_file.write(str(doc))
-
-
-if __name__ == "__main__":
-    generate_summary_report()
