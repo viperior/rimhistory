@@ -10,7 +10,7 @@
 
 ### Testing
 * Use `coverage` to measure the code coverage during pytest execution and require 100% code coverage ([coverage documentation](https://coverage.readthedocs.io/en/6.3.1/))
-* Add test cases to increase overall test coverage from 48% (v0.1.0) to 65% (v0.1.0-38-g464f3d1)
+* Add test cases to increase overall test coverage from 48% (v0.1.0) to 100% (v0.1.0-83-g4e408b5)
 
 ## [0.1.0](https://github.com/stone-tech-inc/rimhistory/tree/0.1.0) (2022-02-02)
 
