@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.3.0](https://github.com/stone-tech-inc/rimhistory/tree/0.3.0) (TBD)
+
+### New features
+
+* Flora presence and growth statistics
+* Count of every living plant species
+* Distribution chart that visualizes the current growth progress of living plants
+* Pawn environment ambient temperature
+* Current weather conditions
+
 ## [0.2.0](https://github.com/stone-tech-inc/rimhistory/tree/0.2.0) (2022-02-05)
 
 ### New features
