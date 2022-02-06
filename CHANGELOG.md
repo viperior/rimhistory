@@ -4,7 +4,6 @@
 
 ### New features
 
-* Flora presence and growth statistics
 * Count of every living plant species
 * Distribution chart that visualizes the current growth progress of living plants
 * Pawn environment ambient temperature
