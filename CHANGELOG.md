@@ -10,6 +10,10 @@
 * Pawn environment ambient temperature
 * Current weather conditions
 
+### Improvements
+
+* Configure `dependabot` alerts
+
 ## [0.2.0](https://github.com/stone-tech-inc/rimhistory/tree/0.2.0) (2022-02-05)
 
 ### New features
