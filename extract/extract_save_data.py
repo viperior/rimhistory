@@ -5,6 +5,8 @@ import logging
 import os
 import xml.etree.ElementTree
 
+import pandas
+
 
 def extract_game_version() -> str:
     """Return the base RimWorld game version from the save file's meta element
@@ -300,6 +302,18 @@ def get_save_file_size() -> int:
     file_size = os.path.getsize(rimworld_save_file_path)
 
     return file_size
+
+
+def plant_dataframe() -> pandas.core.frame.DataFrame:
+    """Convert a list of dictionaries with plant data to a pandas DataFrame
+
+    Parameters:
+    list: The list of dictionaries containing plant data
+
+    Returns:
+    pandas.core.frame.DataFrame: A dataframe containing the plant data
+    """
+    return pandas.DataFrame(data=get_plant_data())
 
 
 def recurse_children(parent) -> None:
