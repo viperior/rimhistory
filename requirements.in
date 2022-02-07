@@ -1,5 +1,6 @@
 coverage==6.2
 dominate==2.6.0
+pandas==1.1.5
 psutil==5.9.0
 pylint==2.12.2
 pytest==7.0.0

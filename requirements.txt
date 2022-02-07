@@ -26,8 +26,12 @@ lazy-object-proxy==1.7.1
     # via astroid
 mccabe==0.6.1
     # via pylint
+numpy==1.19.5
+    # via pandas
 packaging==21.3
     # via pytest
+pandas==1.1.5
+    # via -r requirements.in
 platformdirs==2.4.0
     # via pylint
 pluggy==1.0.0
@@ -53,6 +57,12 @@ pytest-forked==1.4.0
     #   pytest-xdist
 pytest-xdist==2.5.0
     # via -r requirements.in
+python-dateutil==2.8.2
+    # via pandas
+pytz==2021.3
+    # via pandas
+six==1.16.0
+    # via python-dateutil
 toml==0.10.2
     # via pylint
 tomli==1.2.3
