@@ -1,23 +1,23 @@
 """Generate a summary HTML report for RimWorld save game data"""
 
+import pathlib
+
 import dominate
 from dominate.tags import attr, div, h1, h2, li, link, p, ul
 
 import extract.extract_save_data
 
 
-def generate_summary_report(output_directory: str, output_file_name: str) -> None:
+def generate_summary_report(output_path: pathlib.Path) -> None:
     """Generate an HTML report with a list of the installed mods found
 
     Parameters:
-    output_directory (str): The directory to store the generated report
-    output_file_name (str): The name to use for the report HTML file
+    output_path (pathlib.Path): The file path where the report should be created
 
     Returns:
     None
     """
     mod_list = extract.extract_save_data.extract_mod_list()
-    output_path = f"{output_directory}/{output_file_name}.html"
     doc = dominate.document(title='RimWorld Save Game Summary Report')
 
     with doc.head:
