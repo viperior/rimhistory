@@ -3,6 +3,7 @@
 import pathlib
 
 import dominate
+from dominate.util import raw
 from dominate.tags import attr, div, h1, h2, li, link, p, ul
 
 import extract.extract_save_data
@@ -72,10 +73,10 @@ def generate_summary_report(output_path: pathlib.Path) -> None:
 
             plant_dataframe = extract.extract_save_data.plant_dataframe(dictionary_list=\
                 plant_data_raw)
-            p(dominate.util.raw(plant_dataframe.head().to_html()))
-            p(dominate.util.raw(plant_dataframe.tail().to_html()))
-            p(dominate.util.raw(plant_dataframe.describe().to_html()))
-            p(dominate.util.raw(plant_dataframe["plant_definition"].value_counts().to_frame().to_html()))
+            p(raw(plant_dataframe.head().to_html()))
+            p(raw(plant_dataframe.tail().to_html()))
+            p(raw(plant_dataframe.describe().to_html()))
+            p(raw(plant_dataframe["plant_definition"].value_counts().to_frame().to_html()))
 
     with open(output_path, "w", encoding="utf_8") as output_file:
         output_file.write(str(doc))
