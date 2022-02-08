@@ -16,7 +16,8 @@ def test_plant_dataframe() -> None:
     Returns:
     None
     """
-    plant_dataframe = extract.extract_save_data.plant_dataframe()
+    plant_data_raw = extract.extract_save_data.get_plant_data()
+    plant_dataframe = extract.extract_save_data.plant_dataframe(dictionary_list=plant_data_raw)
 
     # Test the data type of the frame
     logging.debug("type(plant_dataframe) = %s", type(plant_dataframe))
