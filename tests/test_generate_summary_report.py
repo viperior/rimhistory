@@ -1,6 +1,7 @@
 """Test the view.summary_report.generate_summary_report function"""
 
 import logging
+import pathlib
 
 import pytest
 
@@ -8,12 +9,12 @@ import view.summary_report
 
 
 @pytest.mark.parametrize("output_file_name_base", ["test_1", "test_2"])
-def test_generate_summary_report(output_file_name_base: str, tmp_path) -> None:
+def test_generate_summary_report(output_file_name_base: str, tmp_path: pathlib.Path) -> None:
     """Test the view.summary_report.generate_summary_report function
 
     Parameters:
     output_file_name_base (str): The file name base to use when creating the report
-    tmp_path: The pytest fixture used to stage files needed for testing
+    tmp_path (pathlib.Path): The path used to stage files needed for testing (pytest fixture)
 
     Returns:
     None
