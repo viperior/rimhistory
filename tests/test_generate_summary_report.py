@@ -8,12 +8,12 @@ import view.summary_report
 
 
 @pytest.mark.parametrize("output_file_name_base", ["test_1", "test_2"])
-def test_generate_summary_report(output_file_name_base: str, test_data_directory: str) -> None:
+def test_generate_summary_report(output_file_name_base: str, tmp_path) -> None:
     """Test the view.summary_report.generate_summary_report function
 
     Parameters:
     output_file_name_base (str): The file name base to use when creating the report
-    test_data_directory (str): The path to the temporary test data directory
+    tmp_path: The pytest fixture used to stage files needed for testing
 
     Returns:
     None
