@@ -6,7 +6,7 @@ import xml.etree.ElementTree
 import extract.modify_save_file
 
 
-def test_process_save_file(config_data: dict, test_data_directory: str) -> None:
+def test_process_save_file(config_data: dict, tmp_path) -> None:
     """Test the extract.modify_save_file.process_save_file function
 
     Parameters:
@@ -17,7 +17,7 @@ def test_process_save_file(config_data: dict, test_data_directory: str) -> None:
     None
     """
     input_path = config_data["rimworld_save_file_path"]
-    output_path = f"{test_data_directory}/processed.rws"
+    output_path = tmp_path / "processed.rws"
     test_tag = "scenario"
     search_pattern = f".//{test_tag}"
 
