@@ -1,17 +1,18 @@
 """Test the extract.modify_save_file.process_save_file function"""
 
 import json
+import pathlib
 import xml.etree.ElementTree
 
 import extract.modify_save_file
 
 
-def test_process_save_file(config_data: dict, tmp_path) -> None:
+def test_process_save_file(config_data: dict, tmp_path: pathlib.Path) -> None:
     """Test the extract.modify_save_file.process_save_file function
 
     Parameters:
     config_data (dict): The project configuration data as a dictionary
-    test_data_directory (str): The path to the temporary test data directory
+    tmp_path (pathlib.Path): The path used to stage files needed for testing (pytest fixture)
 
     Returns:
     None
