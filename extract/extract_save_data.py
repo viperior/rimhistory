@@ -304,16 +304,16 @@ def get_save_file_size() -> int:
     return file_size
 
 
-def plant_dataframe() -> pandas.core.frame.DataFrame:
+def plant_dataframe(dictionary_list: list) -> pandas.core.frame.DataFrame:
     """Convert a list of dictionaries with plant data to a pandas DataFrame
 
     Parameters:
-    list: The list of dictionaries containing plant data
+    dictionary_list (list): The list of dictionaries containing plant data
 
     Returns:
     pandas.core.frame.DataFrame: A dataframe containing the plant data
     """
-    return pandas.DataFrame(data=get_plant_data())
+    return pandas.DataFrame(data=dictionary_list)
 
 
 def recurse_children(parent) -> None:
