@@ -18,12 +18,10 @@ def test_generate_summary_report(output_file_name_base: str, tmp_path) -> None:
     Returns:
     None
     """
-    output_directory = f"{test_data_directory}/reports"
+    output_path = tmp_path / f"{output_file_name_base}.html"
 
     # Generate the report
-    view.summary_report.generate_summary_report(output_directory=output_directory,
-        output_file_name=output_file_name_base)
-    output_path = f"{output_directory}/{output_file_name_base}.html"
+    view.summary_report.generate_summary_report(output_path=output_path)
 
     # Test the generated report
     with open(output_path, "r", encoding="utf_8") as report_file:
