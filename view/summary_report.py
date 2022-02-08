@@ -75,7 +75,7 @@ def generate_summary_report(output_path: pathlib.Path) -> None:
             p(dominate.util.raw(plant_dataframe.head().to_html()))
             p(dominate.util.raw(plant_dataframe.tail().to_html()))
             p(dominate.util.raw(plant_dataframe.describe().to_html()))
-            p(str(plant_dataframe["plant_definition"].value_counts()))
+            p(dominate.util.raw(plant_dataframe["plant_definition"].value_counts().to_frame().to_html()))
 
     with open(output_path, "w", encoding="utf_8") as output_file:
         output_file.write(str(doc))
