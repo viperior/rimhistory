@@ -50,11 +50,12 @@ def generate_summary_report(output_path: pathlib.Path) -> None:
                     li(f"{pawn['pawn_name_full']}, age {pawn['pawn_biological_age']}")
 
             h2(f"Plants ({extract.extract_save_data.get_plant_count()})")
+            plant_data_raw = extract.extract_save_data.get_plant_data()
 
             with ul():
                 displayed_plant_types = []
 
-                for plant in extract.extract_save_data.get_plant_data():
+                for plant in plant_data_raw:
                     if plant['plant_definition'] in displayed_plant_types:
                         continue
 
@@ -68,6 +69,13 @@ def generate_summary_report(output_path: pathlib.Path) -> None:
 
                     if len(displayed_plant_types) >= 20:
                         break
+
+            plant_dataframe = extract.extract_save_data.plant_dataframe(dictionary_list=\
+                plant_data_raw)
+            p(dominate.util.raw(plant_dataframe.head().to_html()))
+            p(dominate.util.raw(plant_dataframe.tail().to_html()))
+            p(dominate.util.raw(plant_dataframe.describe().to_html()))
+            p(str(plant_dataframe["plant_definition"].value_counts()))
 
     with open(output_path, "w", encoding="utf_8") as output_file:
         output_file.write(str(doc))
