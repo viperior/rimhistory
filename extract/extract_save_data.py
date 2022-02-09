@@ -5,6 +5,8 @@ import logging
 import os
 import xml.etree.ElementTree
 
+import extract.save
+
 
 def extract_rimworld_save_data() -> None:
     """Recurse through all the data
@@ -15,11 +17,9 @@ def extract_rimworld_save_data() -> None:
     Returns:
     None
     """
-    save_file_path = get_save_file_path()
-    logging.debug("Processing save file: %s", save_file_path)
-    root = get_save_file_data(save_file_path=save_file_path)
+    logging.debug("Processing save file: %s", get_save_file_path())
     logging.debug("Starting recursion")
-    recurse_children(root)
+    recurse_children(parent=extract.save.Save(path_to_save_file=get_save_file_path()).root)
     logging.debug("Recursion complete")
 
 
@@ -113,21 +113,6 @@ def get_element_lineage(element: xml.etree.ElementTree.Element,
     return get_element_lineage(element=parent, root=root, lineage=lineage)
 
 
-def get_save_file_data(save_file_path: str) -> xml.etree.ElementTree.Element:
-    """Return the root element from the RimWorld save game XML data
-
-    Parameters:
-    save_file_path (str): The path to the save file as a string
-
-    Returns:
-    xml.etree.ElementTree.Element: The save data XML tree's root element
-    """
-    tree = xml.etree.ElementTree.parse(save_file_path)
-    root = tree.getroot()
-
-    return root
-
-
 def get_save_file_path() -> str:
     """Return the path to the RimWorld save file to analyze as a string
 
@@ -171,7 +156,7 @@ def get_weather_data() -> dict:
     dict: A dictionary containing weather data for the current map
     """
     search_pattern = ".//weatherManager"
-    root = get_save_file_data(get_save_file_path())
+    root = extract.save.Save(path_to_save_file=get_save_file_path()).root
     element = root.find(search_pattern)
     weather_data = {
         "weather_current": element.find(".//curWeather").text,
