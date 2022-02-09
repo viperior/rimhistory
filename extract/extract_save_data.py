@@ -6,20 +6,6 @@ import os
 import xml.etree.ElementTree
 
 
-def extract_game_version() -> str:
-    """Return the base RimWorld game version from the save file's meta element
-
-    Parameters:
-    None
-
-    Returns:
-    str: The full game version as a human-friendly string
-    """
-    root = get_save_file_data(save_file_path=get_save_file_path())
-
-    return root.find("./meta/gameVersion").text
-
-
 def extract_mod_list() -> list:
     """Extract the list of mods installed in the save game
 

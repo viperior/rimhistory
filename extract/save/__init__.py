@@ -108,6 +108,12 @@ class Save:
         return plant_data
 
 
+    @property
+    def game_version(self) -> str:
+        """Return the base RimWorld game version as a string from the save file's meta element"""
+        return self.root.find("./meta/gameVersion").text
+
+
     @staticmethod
     def transform_plant_dataframe(dataframe: pandas.core.frame.DataFrame) ->\
         pandas.core.frame.DataFrame:

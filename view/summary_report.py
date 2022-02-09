@@ -81,7 +81,7 @@ def generate_summary_report(path_to_save_file: pathlib.Path, output_path: pathli
             attr(cls='body')
             h1("RimWorld Save Game Summary")
             h2("Game Version")
-            p(extract.extract_save_data.extract_game_version())
+            p(save.game_version)
             h2("File Size")
             p(f"{extract.extract_save_data.get_save_file_size()} bytes")
             h2(f"Installed Mods ({len(mod_list)})")
