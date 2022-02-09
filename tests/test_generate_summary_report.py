@@ -9,12 +9,14 @@ import view.summary_report
 
 
 @pytest.mark.parametrize("output_file_name_base", ["test_1", "test_2"])
-def test_generate_summary_report(output_file_name_base: str, tmp_path: pathlib.Path) -> None:
+def test_generate_summary_report(output_file_name_base: str, tmp_path: pathlib.Path,
+    config_data: dict) -> None:
     """Test the view.summary_report.generate_summary_report function
 
     Parameters:
     output_file_name_base (str): The file name base to use when creating the report
     tmp_path (pathlib.Path): The path used to stage files needed for testing (pytest fixture)
+    config_data (dict): The project configuration data as a dictionary (fixture)
 
     Returns:
     None
@@ -22,7 +24,10 @@ def test_generate_summary_report(output_file_name_base: str, tmp_path: pathlib.P
     output_path = tmp_path / f"{output_file_name_base}.html"
 
     # Generate the report
-    view.summary_report.generate_summary_report(output_path=output_path)
+    view.summary_report.generate_summary_report(
+        path_to_save_file=config_data["rimworld_save_file_path"],
+        output_path=output_path
+    )
 
     # Test the generated report
     with open(output_path, "r", encoding="utf_8") as report_file:
