@@ -192,6 +192,7 @@ def get_pawn_data() -> list:
             "pawn_name_last": element.find(".//pawnData/name/last").text,
             "pawn_biological_age": element.find(".//pawnData/age").text,
             "pawn_chronological_age": element.find(".//pawnData/chronologicalAge").text,
+            "pawn_ambient_temperature": element.find(".//surroundings/temperature").text,
         }
         current_pawn["pawn_name_full"] = (
             f"{current_pawn['pawn_name_first']} "
