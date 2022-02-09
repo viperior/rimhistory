@@ -5,8 +5,28 @@ import pathlib
 import dominate
 from dominate.util import raw
 from dominate.tags import attr, div, h1, h2, li, link, p, ul
+import pandas
+import plotly.express
 
 import extract.extract_save_data
+
+
+def get_histogram_html(dataframe: pandas.core.frame.DataFrame, x_axis_field: str,
+    labels: dict) -> str:
+    """Return the HTML for a histogram chart
+
+    Parameters:
+    dataframe (pandas.core.frame.DataFrame): The pandas DataFrame to use in the chart
+    x_axis_field (str): The field to use for the x-axis series
+    labels (dict): A dictionary with the chart labels metadata
+
+    Returns:
+    str: A histogram chart HTML
+    """
+    fig = plotly.express.histogram(dataframe, x=x_axis_field, labels=labels)
+    fig.update_layout(bargap=0.05, yaxis_title_text="Count")
+
+    return fig.to_html(full_html=False)
 
 
 def generate_summary_report(output_path: pathlib.Path) -> None:
