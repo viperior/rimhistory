@@ -51,9 +51,35 @@ class Save:
         None
         """
         self._root = xml.etree.ElementTree.parse(path_to_save_file).getroot()
+        self._mod = Dataset(source_dictionary_list=self.extract_mod_list())
         self._pawn = Dataset(source_dictionary_list=self.extract_pawn_data())
         self._plant = Dataset(source_dictionary_list=self.extract_plant_data())
         self._plant.dataframe = self.transform_plant_dataframe(dataframe=self._plant.dataframe)
+
+
+    def extract_mod_list(self) -> list:
+        """Extract the list of mods installed in the save game
+
+        Parameters:
+        None
+
+        Returns:
+        list: A list of dictionaries with each installed mod's metadata
+        """
+        mod_ids = self._root.findall("./meta/modIds")
+        mod_steam_ids = self._root.findall("./meta/modSteamIds")
+        mod_names = self._root.findall("./meta/modNames")
+        mod_list = []
+
+        for index, mod_id in enumerate(mod_ids[0]):
+            mod_info = {
+                "mod_id": mod_id.text,
+                "mod_name": mod_names[0][index].text,
+                "mod_steam_id": mod_steam_ids[0][index].text
+            }
+            mod_list.append(mod_info)
+
+        return mod_list
 
 
     def extract_pawn_data(self) -> list:
@@ -112,6 +138,12 @@ class Save:
     def game_version(self) -> str:
         """Return the base RimWorld game version as a string from the save file's meta element"""
         return self.root.find("./meta/gameVersion").text
+
+
+    @property
+    def mod(self) -> Dataset:
+        """Return a list of dictionaries containing mod data"""
+        return self._mod
 
 
     @staticmethod

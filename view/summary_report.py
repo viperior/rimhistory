@@ -69,7 +69,6 @@ def generate_summary_report(path_to_save_file: pathlib.Path, output_path: pathli
     Returns:
     None
     """
-    mod_list = extract.extract_save_data.extract_mod_list()
     save = extract.save.Save(path_to_save_file=path_to_save_file)
     doc = dominate.document(title='RimWorld Save Game Summary Report')
 
@@ -84,10 +83,10 @@ def generate_summary_report(path_to_save_file: pathlib.Path, output_path: pathli
             p(save.game_version)
             h2("File Size")
             p(f"{extract.extract_save_data.get_save_file_size()} bytes")
-            h2(f"Installed Mods ({len(mod_list)})")
+            h2(f"Installed Mods ({len(save.mod.dictionary_list)})")
 
             with ul():
-                for mod in mod_list:
+                for mod in save.mod.dictionary_list:
                     mod_list_item_content = mod["mod_name"]
                     mod_steam_id = mod["mod_steam_id"]
 
