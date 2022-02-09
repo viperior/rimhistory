@@ -11,6 +11,26 @@ import plotly.express
 import extract.extract_save_data
 
 
+def get_environment_section(pawn_data: list) -> None:
+    """Build the environment and weather section of the report
+
+    Parameters:
+    pawn_data (list): The list of dictionaries containing pawn data
+
+    Returns:
+    None
+    """
+    h2("Environment and Weather")
+
+    with ul():
+        for pawn in pawn_data:
+            ambient_temperature = round(float(pawn['pawn_ambient_temperature']), 1)
+            ambient_temperature_string = f"{ambient_temperature}&#176;C"
+            pawn_temperature_string = f"{ambient_temperature_string} temperature felt by \
+                {pawn['pawn_name_full']}"
+            li(raw(pawn_temperature_string))
+
+
 def get_histogram_html(dataframe: pandas.core.frame.DataFrame, x_axis_field: str,
     labels: dict) -> str:
     """Return the HTML for a histogram chart
@@ -104,6 +124,7 @@ def generate_summary_report(output_path: pathlib.Path) -> None:
                     labels={"plant_growth_bin": "Plant growth (%)"}
                 )
             )
+            get_environment_section(pawn_data=extract.extract_save_data.get_pawn_data())
 
     with open(output_path, "w", encoding="utf_8") as output_file:
         output_file.write(str(doc))
