@@ -4,23 +4,32 @@ import pathlib
 
 import dominate
 from dominate.util import raw
-from dominate.tags import attr, div, h1, h2, li, link, p, ul
+from dominate.tags import attr, div, h1, h2, h3, li, link, p, ul
 import pandas
 import plotly.express
 
 import extract.extract_save_data
 
 
-def get_environment_section(pawn_data: list) -> None:
+def get_environment_section(pawn_data: list, weather_data: dict) -> None:
     """Build the environment and weather section of the report
 
     Parameters:
     pawn_data (list): The list of dictionaries containing pawn data
+    weather_data (dict): A dictionary containing weather data for the map being analyzed
 
     Returns:
     None
     """
     h2("Environment and Weather")
+    h3("Weather")
+
+    with ul():
+        li(f"Current weather: {weather_data['weather_current']}")
+        li(f"Last weather: {weather_data['weather_last']}")
+        li(f"Current weather age: {weather_data['weather_current_age']}")
+
+    h3("Pawn Ambient Temperatures")
 
     with ul():
         for pawn in pawn_data:
@@ -124,7 +133,10 @@ def generate_summary_report(output_path: pathlib.Path) -> None:
                     labels={"plant_growth_bin": "Plant growth (%)"}
                 )
             )
-            get_environment_section(pawn_data=extract.extract_save_data.get_pawn_data())
+            get_environment_section(
+                pawn_data=extract.extract_save_data.get_pawn_data(),
+                weather_data=extract.extract_save_data.get_weather_data()
+            )
 
     with open(output_path, "w", encoding="utf_8") as output_file:
         output_file.write(str(doc))
