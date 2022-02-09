@@ -304,6 +304,27 @@ def get_save_file_size() -> int:
     return file_size
 
 
+def get_weather_data() -> dict:
+    """Return the weather data for the current map
+
+    Parameters:
+    None
+
+    Returns:
+    dict: A dictionary containing weather data for the current map
+    """
+    search_pattern = ".//weatherManager"
+    root = get_save_file_data(get_save_file_path())
+    element = root.find(search_pattern)
+    weather_data = {
+        "weather_current": element.find(".//curWeather").text,
+        "weather_current_age": element.find(".//curWeatherAge").text,
+        "weather_last": element.find(".//lastWeather").text,
+    }
+
+    return weather_data
+
+
 def plant_dataframe(dictionary_list: list) -> pandas.core.frame.DataFrame:
     """Convert a list of dictionaries with plant data to a pandas DataFrame
 
