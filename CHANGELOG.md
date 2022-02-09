@@ -1,6 +1,20 @@
 # Changelog
 
-## [0.2.0](https://github.com/stone-tech-inc/rimhistory/tree/0.2.0) (2022-02-05)
+## [0.3.0](https://github.com/stone-tech-inc/rimhistory/tree/v0.3.0) (2022-02-09)
+
+### New features
+
+* Count of every living plant species
+* Distribution chart that visualizes the current growth progress of living plants
+* Pawn environment ambient temperature
+* Current weather conditions
+
+### Improvements
+
+* Configure `dependabot` alerts
+* Use the `tmp_path` pytest fixture for test data storage, allowing parallel processing of test cases with file I/O
+
+## [0.2.0](https://github.com/stone-tech-inc/rimhistory/tree/v0.2.0) (2022-02-05)
 
 ### New features
 
@@ -16,7 +30,7 @@
 * Use `coverage` to measure the code coverage during pytest execution and require 100% code coverage ([coverage documentation](https://coverage.readthedocs.io/en/6.3.1/))
 * Add test cases to increase overall test coverage from 48% (v0.1.0) to 100% (v0.2.0)
 
-## [0.1.0](https://github.com/stone-tech-inc/rimhistory/tree/0.1.0) (2022-02-02)
+## [0.1.0](https://github.com/stone-tech-inc/rimhistory/tree/v0.1.0) (2022-02-02)
 
 ### New features
 

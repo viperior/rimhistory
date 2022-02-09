@@ -1,23 +1,24 @@
 """Test the extract.modify_save_file.process_save_file function"""
 
 import json
+import pathlib
 import xml.etree.ElementTree
 
 import extract.modify_save_file
 
 
-def test_process_save_file(config_data: dict, test_data_directory: str) -> None:
+def test_process_save_file(config_data: dict, tmp_path: pathlib.Path) -> None:
     """Test the extract.modify_save_file.process_save_file function
 
     Parameters:
     config_data (dict): The project configuration data as a dictionary
-    test_data_directory (str): The path to the temporary test data directory
+    tmp_path (pathlib.Path): The path used to stage files needed for testing (pytest fixture)
 
     Returns:
     None
     """
     input_path = config_data["rimworld_save_file_path"]
-    output_path = f"{test_data_directory}/processed.rws"
+    output_path = tmp_path / "processed.rws"
     test_tag = "scenario"
     search_pattern = f".//{test_tag}"
 

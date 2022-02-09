@@ -5,6 +5,8 @@ import logging
 import os
 import xml.etree.ElementTree
 
+import pandas
+
 
 def extract_game_version() -> str:
     """Return the base RimWorld game version from the save file's meta element
@@ -178,19 +180,19 @@ def get_pawn_data() -> list:
     Returns:
     None
     """
-    target_tag = "pawnData"
     root = get_save_file_data(get_save_file_path())
-    pawn_data_elements = root.findall(f".//{target_tag}")
+    pawn_data_elements = root.findall(".//li[@Class='Tale_SinglePawn']")
     pawn_data = []
 
     for element in pawn_data_elements:
         current_pawn = {
-            "pawn_id": element.find(".//pawn").text,
-            "pawn_name_first": element.find(".//first").text,
-            "pawn_name_nick": element.find(".//nick").text,
-            "pawn_name_last": element.find(".//last").text,
-            "pawn_biological_age": element.find(".//age").text,
-            "pawn_chronological_age": element.find(".//chronologicalAge").text,
+            "pawn_id": element.find(".//pawnData/pawn").text,
+            "pawn_name_first": element.find(".//pawnData/name/first").text,
+            "pawn_name_nick": element.find(".//pawnData/name/nick").text,
+            "pawn_name_last": element.find(".//pawnData/name/last").text,
+            "pawn_biological_age": element.find(".//pawnData/age").text,
+            "pawn_chronological_age": element.find(".//pawnData/chronologicalAge").text,
+            "pawn_ambient_temperature": element.find(".//surroundings/temperature").text,
         }
         current_pawn["pawn_name_full"] = (
             f"{current_pawn['pawn_name_first']} "
@@ -300,6 +302,50 @@ def get_save_file_size() -> int:
     file_size = os.path.getsize(rimworld_save_file_path)
 
     return file_size
+
+
+def get_weather_data() -> dict:
+    """Return the weather data for the current map
+
+    Parameters:
+    None
+
+    Returns:
+    dict: A dictionary containing weather data for the current map
+    """
+    search_pattern = ".//weatherManager"
+    root = get_save_file_data(get_save_file_path())
+    element = root.find(search_pattern)
+    weather_data = {
+        "weather_current": element.find(".//curWeather").text,
+        "weather_current_age": element.find(".//curWeatherAge").text,
+        "weather_last": element.find(".//lastWeather").text,
+    }
+
+    return weather_data
+
+
+def plant_dataframe(dictionary_list: list) -> pandas.core.frame.DataFrame:
+    """Convert a list of dictionaries with plant data to a pandas DataFrame
+
+    Parameters:
+    dictionary_list (list): The list of dictionaries containing plant data
+
+    Returns:
+    pandas.core.frame.DataFrame: A dataframe containing the plant data
+    """
+    # Convert the list of dictionaries to a pandas DataFrame
+    dataframe = pandas.DataFrame(data=dictionary_list)
+
+    # Create a new column derived from converting plant_growth to a float and multiplying it by 100
+    dataframe["plant_growth_percentage"] = dataframe["plant_growth"].astype(float) * 100
+
+    # Bin the percentage values in ranges for visualization and summarized reporting
+    bins = range(0, 101, 5)
+    dataframe["plant_growth_bin"] = pandas.cut(dataframe["plant_growth_percentage"], bins,
+        labels=bins[1:])
+
+    return dataframe
 
 
 def recurse_children(parent) -> None:
