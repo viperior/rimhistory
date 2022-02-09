@@ -96,19 +96,18 @@ def generate_summary_report(path_to_save_file: pathlib.Path, output_path: pathli
 
                     li(mod_list_item_content)
 
-            h2(f"Colonists ({len(save.pawn)})")
+            h2(f"Colonists ({len(save.pawn.dictionary_list)})")
 
             with ul():
-                for pawn in save.pawn:
+                for pawn in save.pawn.dictionary_list:
                     li(f"{pawn['pawn_name_full']}, age {pawn['pawn_biological_age']}")
 
-            h2(f"Plants ({extract.extract_save_data.get_plant_count()})")
-            plant_data_raw = extract.extract_save_data.get_plant_data()
+            h2(f"Plants ({len(save.plant.dictionary_list)})")
 
             with ul():
                 displayed_plant_types = []
 
-                for plant in plant_data_raw:
+                for plant in save.plant.dictionary_list:
                     if plant['plant_definition'] in displayed_plant_types:
                         continue
 
@@ -123,8 +122,7 @@ def generate_summary_report(path_to_save_file: pathlib.Path, output_path: pathli
                     if len(displayed_plant_types) >= 20:
                         break
 
-            plant_dataframe = extract.extract_save_data.plant_dataframe(dictionary_list=\
-                plant_data_raw)
+            plant_dataframe = save.plant.dataframe
             p(raw(plant_dataframe.head().to_html()))
             p(raw(plant_dataframe.tail().to_html()))
             p(raw(plant_dataframe.describe().to_html()))
@@ -137,7 +135,7 @@ def generate_summary_report(path_to_save_file: pathlib.Path, output_path: pathli
                 )
             )
             get_environment_section(
-                pawn_data=save.pawn,
+                pawn_data=save.pawn.dictionary_list,
                 weather_data=extract.extract_save_data.get_weather_data()
             )
 

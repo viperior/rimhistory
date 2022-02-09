@@ -16,7 +16,7 @@ def test_class_save_pawn(config_data: dict) -> None:
     None
     """
     save = extract.save.Save(config_data["rimworld_save_file_path"])
-    pawn_data = save.pawn
+    pawn_data = save.pawn.dictionary_list
 
     # Test the pawn property's data type
     assert isinstance(pawn_data, list)

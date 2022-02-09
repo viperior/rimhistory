@@ -3,6 +3,41 @@
 import pathlib
 import xml.etree.ElementTree
 
+import pandas
+
+
+class Dataset:
+    """Work with sets of data from RimWorld save files (.rws) using lists and pandas DataFrames"""
+    def __init__(self, source_dictionary_list: list) -> None:
+        """Initialize the Dataset object
+
+        Parameters:
+        source_dictionary_list (list): The list of dictionaries containing the raw data
+
+        Returns:
+        None
+        """
+        self._dictionary_list = source_dictionary_list[:]
+        self._dataframe = pandas.DataFrame(self._dictionary_list)
+
+
+    @property
+    def dataframe(self) -> pandas.core.frame.DataFrame:
+        """Return a pandas DataFrame containing the data"""
+        return self._dataframe
+
+
+    @dataframe.setter
+    def dataframe(self, dataframe: pandas.core.frame.DataFrame) -> None:
+        """Setter function for the dataframe property"""
+        self._dataframe = dataframe
+
+
+    @property
+    def dictionary_list(self) -> list:
+        """Return a list of dictionaries containing the data"""
+        return self._dictionary_list
+
 
 class Save:
     """Extract the XML data from a RimWorld save file and return the elements"""
@@ -16,7 +51,9 @@ class Save:
         None
         """
         self._root = xml.etree.ElementTree.parse(path_to_save_file).getroot()
-        self._pawn = self.extract_pawn_data()
+        self._pawn = Dataset(source_dictionary_list=self.extract_pawn_data())
+        self._plant = Dataset(source_dictionary_list=self.extract_plant_data())
+        self._plant.dataframe = self.transform_plant_dataframe(dataframe=self._plant.dataframe)
 
 
     def extract_pawn_data(self) -> list:
@@ -51,13 +88,61 @@ class Save:
         return pawn_data
 
 
+    def extract_plant_data(self) -> list:
+        """Return a list of dictionaries containing plant data"""
+        search_pattern = ".//thing[@Class='Plant']"
+        xml_elements = self.root.findall(search_pattern)
+        plant_data = []
+
+        for element in xml_elements:
+            current_element_data = {
+                "plant_id": element.find(".//id").text,
+                "plant_definition": element.find(".//def").text,
+                "plant_map_id": element.find(".//map").text,
+                "plant_position": element.find(".//pos").text,
+                "plant_growth": element.find(".//growth").text,
+                "plant_age": element.find(".//age").text,
+            }
+            plant_data.append(current_element_data)
+
+        return plant_data
+
+
+    @staticmethod
+    def transform_plant_dataframe(dataframe: pandas.core.frame.DataFrame) ->\
+        pandas.core.frame.DataFrame:
+        """Transform the plants DataFrame by adding calculated columns
+
+        Parameters:
+        dataframe (pandas.core.frame.DataFrame): The original pandas DataFrame with plant data
+
+        Returns:
+        pandas.core.frame.DataFrame: The modified DataFrame
+        """
+        # Create a column by converting plant_growth to a float and multiplying it by 100
+        dataframe["plant_growth_percentage"] = dataframe["plant_growth"].astype(float) * 100
+
+        # Bin the percentage values in ranges for visualization and summarized reporting
+        bins = range(0, 101, 5)
+        dataframe["plant_growth_bin"] = pandas.cut(dataframe["plant_growth_percentage"], bins,
+            labels=bins[1:])
+
+        return dataframe
+
+
     @property
-    def pawn(self) -> list:
+    def pawn(self) -> Dataset:
         """Return a list of dictionaries containing pawn data"""
         return self._pawn
 
 
     @property
-    def root(self):
+    def plant(self) -> Dataset:
+        """Return a list of dictionaries containing plant data"""
+        return self._plant
+
+
+    @property
+    def root(self) -> xml.etree.ElementTree.Element:
         """Return the root XML element of the RimWorld save file (.rws file extension)"""
         return self._root

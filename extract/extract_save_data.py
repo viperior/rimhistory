@@ -5,8 +5,6 @@ import logging
 import os
 import xml.etree.ElementTree
 
-import pandas
-
 
 def extract_game_version() -> str:
     """Return the base RimWorld game version from the save file's meta element
@@ -155,58 +153,6 @@ def get_element_lineage(element: xml.etree.ElementTree.Element,
     return get_element_lineage(element=parent, root=root, lineage=lineage)
 
 
-def get_plant_count() -> int:
-    """Return the number of plants identified in the save game file
-
-    Parameters:
-    None
-
-    Returns:
-    int: The number of plants identified in the save game file
-    """
-    search_pattern = ".//thing[@Class='Plant']"
-    root = get_save_file_data(get_save_file_path())
-    xml_elements = root.findall(search_pattern)
-    element_count = 0
-
-    for index, element in enumerate(xml_elements):
-        if index % 1000 == 0:
-            logging.debug("Loading data from element #%d: %s", index,
-                get_element_lineage(element=element, root=root))
-
-        element_count += 1
-
-    return element_count
-
-
-def get_plant_data() -> list:
-    """Return a list of dictionaries containing data about the plants extracted from the save file
-
-    Parameters:
-    None
-
-    Returns:
-    None
-    """
-    search_pattern = ".//thing[@Class='Plant']"
-    root = get_save_file_data(get_save_file_path())
-    xml_elements = root.findall(search_pattern)
-    return_data = []
-
-    for element in xml_elements:
-        current_element_data = {
-            "plant_id": element.find(".//id").text,
-            "plant_definition": element.find(".//def").text,
-            "plant_map_id": element.find(".//map").text,
-            "plant_position": element.find(".//pos").text,
-            "plant_growth": element.find(".//growth").text,
-            "plant_age": element.find(".//age").text,
-        }
-        return_data.append(current_element_data)
-
-    return return_data
-
-
 def get_save_file_data(save_file_path: str) -> xml.etree.ElementTree.Element:
     """Return the root element from the RimWorld save game XML data
 
@@ -274,29 +220,6 @@ def get_weather_data() -> dict:
     }
 
     return weather_data
-
-
-def plant_dataframe(dictionary_list: list) -> pandas.core.frame.DataFrame:
-    """Convert a list of dictionaries with plant data to a pandas DataFrame
-
-    Parameters:
-    dictionary_list (list): The list of dictionaries containing plant data
-
-    Returns:
-    pandas.core.frame.DataFrame: A dataframe containing the plant data
-    """
-    # Convert the list of dictionaries to a pandas DataFrame
-    dataframe = pandas.DataFrame(data=dictionary_list)
-
-    # Create a new column derived from converting plant_growth to a float and multiplying it by 100
-    dataframe["plant_growth_percentage"] = dataframe["plant_growth"].astype(float) * 100
-
-    # Bin the percentage values in ranges for visualization and summarized reporting
-    bins = range(0, 101, 5)
-    dataframe["plant_growth_bin"] = pandas.cut(dataframe["plant_growth_percentage"], bins,
-        labels=bins[1:])
-
-    return dataframe
 
 
 def recurse_children(parent) -> None:
