@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.3.0](https://github.com/stone-tech-inc/rimhistory/tree/0.3.0) (TBD)
+## [0.3.0](https://github.com/stone-tech-inc/rimhistory/tree/v0.3.0) (2022-02-09)
 
 ### New features
 
@@ -12,6 +12,7 @@
 ### Improvements
 
 * Configure `dependabot` alerts
+* Use the `tmp_path` pytest fixture for test data storage, allowing parallel processing of test cases with file I/O
 
 ## [0.2.0](https://github.com/stone-tech-inc/rimhistory/tree/0.2.0) (2022-02-05)
 
