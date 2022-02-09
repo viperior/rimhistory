@@ -30,6 +30,8 @@ def test_plant_dataframe() -> None:
         "plant_map_id",
         "plant_position",
         "plant_growth",
+        "plant_growth_bin",
+        "plant_growth_percentage",
         "plant_age"
     ]
     logging.debug("Expected columns (count = %d) = %s", len(expected_columns), expected_columns)
