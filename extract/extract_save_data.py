@@ -146,27 +146,6 @@ def get_save_file_size() -> int:
     return file_size
 
 
-def get_weather_data() -> dict:
-    """Return the weather data for the current map
-
-    Parameters:
-    None
-
-    Returns:
-    dict: A dictionary containing weather data for the current map
-    """
-    search_pattern = ".//weatherManager"
-    root = extract.save.Save(path_to_save_file=get_save_file_path()).root
-    element = root.find(search_pattern)
-    weather_data = {
-        "weather_current": element.find(".//curWeather").text,
-        "weather_current_age": element.find(".//curWeatherAge").text,
-        "weather_last": element.find(".//lastWeather").text,
-    }
-
-    return weather_data
-
-
 def recurse_children(parent) -> None:
     """Recurse through all the children of an element
 

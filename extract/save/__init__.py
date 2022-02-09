@@ -55,6 +55,7 @@ class Save:
         self._pawn = Dataset(source_dictionary_list=self.extract_pawn_data())
         self._plant = Dataset(source_dictionary_list=self.extract_plant_data())
         self._plant.dataframe = self.transform_plant_dataframe(dataframe=self._plant.dataframe)
+        self.weather = Dataset(source_dictionary_list=self.extract_weather_data())
 
 
     def extract_mod_list(self) -> list:
@@ -132,6 +133,28 @@ class Save:
             plant_data.append(current_element_data)
 
         return plant_data
+
+
+    def extract_weather_data(self) -> dict:
+        """Return the weather data for the current map
+
+        Parameters:
+        None
+
+        Returns:
+        dict: A dictionary containing weather data for the current map
+        """
+        element = self._root.find(".//weatherManager")
+        weather_data = {
+            "weather_current": element.find(".//curWeather").text,
+            "weather_current_age": element.find(".//curWeatherAge").text,
+            "weather_last": element.find(".//lastWeather").text,
+        }
+
+        # Nest the weather dictionary inside a list to maintain list of dictionaries as the return
+        weather_data_list = [weather_data]
+
+        return weather_data_list
 
 
     @property

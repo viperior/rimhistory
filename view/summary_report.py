@@ -135,7 +135,7 @@ def generate_summary_report(path_to_save_file: pathlib.Path, output_path: pathli
             )
             get_environment_section(
                 pawn_data=save.pawn.dictionary_list,
-                weather_data=extract.extract_save_data.get_weather_data()
+                weather_data=save.weather.dictionary_list[0]
             )
 
     with open(output_path, "w", encoding="utf_8") as output_file:
