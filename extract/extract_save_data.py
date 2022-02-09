@@ -180,19 +180,18 @@ def get_pawn_data() -> list:
     Returns:
     None
     """
-    target_tag = "pawnData"
     root = get_save_file_data(get_save_file_path())
-    pawn_data_elements = root.findall(f".//{target_tag}")
+    pawn_data_elements = root.findall(".//li[@Class='Tale_SinglePawn']")
     pawn_data = []
 
     for element in pawn_data_elements:
         current_pawn = {
-            "pawn_id": element.find(".//pawn").text,
-            "pawn_name_first": element.find(".//first").text,
-            "pawn_name_nick": element.find(".//nick").text,
-            "pawn_name_last": element.find(".//last").text,
-            "pawn_biological_age": element.find(".//age").text,
-            "pawn_chronological_age": element.find(".//chronologicalAge").text,
+            "pawn_id": element.find(".//pawnData/pawn").text,
+            "pawn_name_first": element.find(".//pawnData/name/first").text,
+            "pawn_name_nick": element.find(".//pawnData/name/nick").text,
+            "pawn_name_last": element.find(".//pawnData/name/last").text,
+            "pawn_biological_age": element.find(".//pawnData/age").text,
+            "pawn_chronological_age": element.find(".//pawnData/chronologicalAge").text,
         }
         current_pawn["pawn_name_full"] = (
             f"{current_pawn['pawn_name_first']} "
