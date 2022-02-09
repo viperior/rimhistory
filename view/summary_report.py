@@ -97,6 +97,13 @@ def generate_summary_report(output_path: pathlib.Path) -> None:
             p(raw(plant_dataframe.tail().to_html()))
             p(raw(plant_dataframe.describe().to_html()))
             p(raw(plant_dataframe["plant_definition"].value_counts().to_frame().to_html()))
+            raw(
+                get_histogram_html(
+                    dataframe=plant_dataframe,
+                    x_axis_field="plant_growth_bin",
+                    labels={"plant_growth_bin": "Plant growth (%)"}
+                )
+            )
 
     with open(output_path, "w", encoding="utf_8") as output_file:
         output_file.write(str(doc))
