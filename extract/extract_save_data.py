@@ -155,55 +155,6 @@ def get_element_lineage(element: xml.etree.ElementTree.Element,
     return get_element_lineage(element=parent, root=root, lineage=lineage)
 
 
-def get_pawn_count() -> int:
-    """Return the number of pawns detected in the save game data
-
-    Parameters:
-    tree (xml.etree.ElementTree): The XML tree to search
-
-    Returns:
-    int: The number of pawns found in the XML data
-    """
-    target_tag = "pawnData"
-    root = get_save_file_data(get_save_file_path())
-    pawn_data_elements = root.findall(f".//{target_tag}")
-
-    return len(list(pawn_data_elements))
-
-
-def get_pawn_data() -> list:
-    """Return a list of dictionaries containing data about the pawns extracted from the save file
-
-    Parameters:
-    None
-
-    Returns:
-    None
-    """
-    root = get_save_file_data(get_save_file_path())
-    pawn_data_elements = root.findall(".//li[@Class='Tale_SinglePawn']")
-    pawn_data = []
-
-    for element in pawn_data_elements:
-        current_pawn = {
-            "pawn_id": element.find(".//pawnData/pawn").text,
-            "pawn_name_first": element.find(".//pawnData/name/first").text,
-            "pawn_name_nick": element.find(".//pawnData/name/nick").text,
-            "pawn_name_last": element.find(".//pawnData/name/last").text,
-            "pawn_biological_age": element.find(".//pawnData/age").text,
-            "pawn_chronological_age": element.find(".//pawnData/chronologicalAge").text,
-            "pawn_ambient_temperature": element.find(".//surroundings/temperature").text,
-        }
-        current_pawn["pawn_name_full"] = (
-            f"{current_pawn['pawn_name_first']} "
-            f"\"{current_pawn['pawn_name_nick']}\" "
-            f"{current_pawn['pawn_name_last']}"
-        )
-        pawn_data.append(current_pawn)
-
-    return pawn_data
-
-
 def get_plant_count() -> int:
     """Return the number of plants identified in the save game file
 
