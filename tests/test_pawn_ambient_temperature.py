@@ -2,19 +2,19 @@
 
 import logging
 
-import extract.extract_save_data
+import extract.save
 
 
-def test_pawn_ambient_temperature() -> None:
+def test_pawn_ambient_temperature(config_data: dict) -> None:
     """Test the extraction of pawn environment ambient temperature
 
     Parameters:
-    None
+    config_data (dict): The project configuration data as a dictionary (fixture)
 
     Returns:
     None
     """
-    pawn_data = extract.extract_save_data.get_pawn_data()
+    pawn_data = extract.save.Save(path_to_save_file=config_data["rimworld_save_file_path"]).pawn
     logging.debug(pawn_data[0].keys())
 
     assert "pawn_ambient_temperature" in pawn_data[0].keys()
