@@ -313,7 +313,18 @@ def plant_dataframe(dictionary_list: list) -> pandas.core.frame.DataFrame:
     Returns:
     pandas.core.frame.DataFrame: A dataframe containing the plant data
     """
-    return pandas.DataFrame(data=dictionary_list)
+    # Convert the list of dictionaries to a pandas DataFrame
+    dataframe = pandas.DataFrame(data=dictionary_list)
+
+    # Create a new column derived from converting plant_growth to a float and multiplying it by 100
+    dataframe["plant_growth_percentage"] = dataframe["plant_growth"].astype(float) * 100
+
+    # Bin the percentage values in ranges for visualization and summarized reporting
+    bins = range(0, 101, 5)
+    dataframe["plant_growth_bin"] = pandas.cut(dataframe["plant_growth_percentage"], bins,
+        labels=bins[1:])
+
+    return dataframe
 
 
 def recurse_children(parent) -> None:
