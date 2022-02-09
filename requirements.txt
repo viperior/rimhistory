@@ -32,6 +32,8 @@ pandas==1.4.0
     # via -r requirements.in
 platformdirs==2.4.0
     # via pylint
+plotly==5.5.0
+    # via -r requirements.in
 pluggy==1.0.0
     # via pytest
 psutil==5.9.0
@@ -60,7 +62,11 @@ python-dateutil==2.8.2
 pytz==2021.3
     # via pandas
 six==1.16.0
-    # via python-dateutil
+    # via
+    #   plotly
+    #   python-dateutil
+tenacity==8.0.1
+    # via plotly
 toml==0.10.2
     # via pylint
 tomli==2.0.0
