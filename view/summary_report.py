@@ -9,6 +9,7 @@ import pandas
 import plotly.express
 
 import extract.extract_save_data
+import extract.save
 
 
 def get_environment_section(pawn_data: list, weather_data: dict) -> None:
@@ -58,16 +59,18 @@ def get_histogram_html(dataframe: pandas.core.frame.DataFrame, x_axis_field: str
     return fig.to_html(full_html=False)
 
 
-def generate_summary_report(output_path: pathlib.Path) -> None:
+def generate_summary_report(path_to_save_file: pathlib.Path, output_path: pathlib.Path) -> None:
     """Generate an HTML report with a list of the installed mods found
 
     Parameters:
+    path_to_save_file (pathlib.Path): The path to the save file from which to source the data
     output_path (pathlib.Path): The file path where the report should be created
 
     Returns:
     None
     """
     mod_list = extract.extract_save_data.extract_mod_list()
+    save = extract.save.Save(path_to_save_file=path_to_save_file)
     doc = dominate.document(title='RimWorld Save Game Summary Report')
 
     with doc.head:
@@ -93,10 +96,10 @@ def generate_summary_report(output_path: pathlib.Path) -> None:
 
                     li(mod_list_item_content)
 
-            h2(f"Colonists ({extract.extract_save_data.get_pawn_count()})")
+            h2(f"Colonists ({len(save.pawn)})")
 
             with ul():
-                for pawn in extract.extract_save_data.get_pawn_data():
+                for pawn in save.pawn:
                     li(f"{pawn['pawn_name_full']}, age {pawn['pawn_biological_age']}")
 
             h2(f"Plants ({extract.extract_save_data.get_plant_count()})")
@@ -134,7 +137,7 @@ def generate_summary_report(output_path: pathlib.Path) -> None:
                 )
             )
             get_environment_section(
-                pawn_data=extract.extract_save_data.get_pawn_data(),
+                pawn_data=save.pawn,
                 weather_data=extract.extract_save_data.get_weather_data()
             )
 
