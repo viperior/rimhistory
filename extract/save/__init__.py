@@ -93,7 +93,14 @@ class Save:
 
 
     def extract_plant_data(self) -> list:
-        """Return a list of dictionaries containing plant data"""
+        """Return a list of dictionaries containing plant data
+
+        Parameters:
+        None
+
+        Returns:
+        list: The list of dictionaries containing plant data
+        """
         search_pattern = ".//thing[@Class='Plant']"
         xml_elements = self.root.findall(search_pattern)
         plant_data = []
