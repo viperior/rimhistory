@@ -32,7 +32,7 @@ pandas==1.4.0
     # via -r requirements.in
 platformdirs==2.4.0
     # via pylint
-plotly==5.5.0
+plotly==5.6.0
     # via -r requirements.in
 pluggy==1.0.0
     # via pytest
@@ -73,10 +73,6 @@ tomli==2.0.0
     # via pytest
 tqdm==4.62.3
     # via -r requirements.in
-typing-extensions==4.0.1
-    # via
-    #   astroid
-    #   pylint
 wrapt==1.13.3
     # via astroid
 
