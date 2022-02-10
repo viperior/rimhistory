@@ -1,4 +1,4 @@
-"""Test the extract_mod_list function that extracta data about installed mods from a save file"""
+"""Test the extract_mod_list function that extracts data about installed mods from a save file"""
 import json
 import logging
 
