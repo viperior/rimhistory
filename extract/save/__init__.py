@@ -1,42 +1,10 @@
 """Extract XML data from a RimWorld save file and return elements"""
 
+import logging
 import pathlib
 import xml.etree.ElementTree
 
 import pandas
-
-
-class Dataset:
-    """Work with sets of data from RimWorld save files (.rws) using lists and pandas DataFrames"""
-    def __init__(self, source_dictionary_list: list) -> None:
-        """Initialize the Dataset object
-
-        Parameters:
-        source_dictionary_list (list): The list of dictionaries containing the raw data
-
-        Returns:
-        None
-        """
-        self._dictionary_list = source_dictionary_list[:]
-        self._dataframe = pandas.DataFrame(self._dictionary_list)
-
-
-    @property
-    def dataframe(self) -> pandas.core.frame.DataFrame:
-        """Return a pandas DataFrame containing the data"""
-        return self._dataframe
-
-
-    @dataframe.setter
-    def dataframe(self, dataframe: pandas.core.frame.DataFrame) -> None:
-        """Setter function for the dataframe property"""
-        self._dataframe = dataframe
-
-
-    @property
-    def dictionary_list(self) -> list:
-        """Return a list of dictionaries containing the data"""
-        return self._dictionary_list
 
 
 class Save:
@@ -50,12 +18,21 @@ class Save:
         Returns:
         None
         """
-        self._root = xml.etree.ElementTree.parse(path_to_save_file).getroot()
-        self._mod = Dataset(source_dictionary_list=self.extract_mod_list())
-        self._pawn = Dataset(source_dictionary_list=self.extract_pawn_data())
-        self._plant = Dataset(source_dictionary_list=self.extract_plant_data())
-        self._plant.dataframe = self.transform_plant_dataframe(dataframe=self._plant.dataframe)
-        self.weather = Dataset(source_dictionary_list=self.extract_weather_data())
+        # Parse the XML document and get the root
+        self.root = xml.etree.ElementTree.parse(path_to_save_file).getroot()
+
+        # Extract singular data points and sets of data
+        self.game_version = self.root.find("./meta/gameVersion").text
+        self.mod = {"dictionary_list": self.extract_mod_list()}
+        self.pawn = {"dictionary_list": self.extract_pawn_data()}
+        self.plant = {"dictionary_list": self.extract_plant_data()}
+        self.weather = {"dictionary_list": self.extract_weather_data()}
+
+        # Generate pandas DataFrames from each dataset initialized as a list of dictionaries
+        self.generate_dataframes(datasets=[self.mod, self.pawn, self.plant, self.weather])
+
+        # Apply transformations to DataFrames
+        self.plant["dataframe"] = self.transform_plant_dataframe(dataframe=self.plant["dataframe"])
 
 
     def extract_mod_list(self) -> list:
@@ -67,9 +44,9 @@ class Save:
         Returns:
         list: A list of dictionaries with each installed mod's metadata
         """
-        mod_ids = self._root.findall("./meta/modIds")
-        mod_steam_ids = self._root.findall("./meta/modSteamIds")
-        mod_names = self._root.findall("./meta/modNames")
+        mod_ids = self.root.findall("./meta/modIds")
+        mod_steam_ids = self.root.findall("./meta/modSteamIds")
+        mod_names = self.root.findall("./meta/modNames")
         mod_list = []
 
         for index, mod_id in enumerate(mod_ids[0]):
@@ -144,7 +121,7 @@ class Save:
         Returns:
         dict: A dictionary containing weather data for the current map
         """
-        element = self._root.find(".//weatherManager")
+        element = self.root.find(".//weatherManager")
         weather_data = {
             "weather_current": element.find(".//curWeather").text,
             "weather_current_age": element.find(".//curWeatherAge").text,
@@ -157,16 +134,29 @@ class Save:
         return weather_data_list
 
 
-    @property
-    def game_version(self) -> str:
-        """Return the base RimWorld game version as a string from the save file's meta element"""
-        return self.root.find("./meta/gameVersion").text
+    @staticmethod
+    def generate_dataframes(datasets: list) -> None:
+        """Generate pandas DataFrames for each input dictionary in the datasets list
 
+        Parameters:
+        datasets (list): A list of dictionaries containing a dictionary_list key
 
-    @property
-    def mod(self) -> Dataset:
-        """Return a list of dictionaries containing mod data"""
-        return self._mod
+        Returns:
+        None
+        """
+        # Validate the input list length
+        assert 1 <= len(datasets) <= 100
+
+        logging.debug("Generating pandas DataFrames for %d datasets", len(datasets))
+
+        for dataset in datasets:
+            # Validate the input dictionary and keys
+            assert isinstance(dataset, dict)
+            assert "dictionary_list" in dataset.keys()
+            assert "dataframe" not in dataset.keys()
+
+            # Generate the pandas dataframe from the list of dictionaries in dictionary_list
+            dataset["dataframe"] = pandas.DataFrame(dataset["dictionary_list"])
 
 
     @staticmethod
@@ -189,21 +179,3 @@ class Save:
             labels=bins[1:])
 
         return dataframe
-
-
-    @property
-    def pawn(self) -> Dataset:
-        """Return a list of dictionaries containing pawn data"""
-        return self._pawn
-
-
-    @property
-    def plant(self) -> Dataset:
-        """Return a list of dictionaries containing plant data"""
-        return self._plant
-
-
-    @property
-    def root(self) -> xml.etree.ElementTree.Element:
-        """Return the root XML element of the RimWorld save file (.rws file extension)"""
-        return self._root

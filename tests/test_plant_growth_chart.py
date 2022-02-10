@@ -18,7 +18,7 @@ def test_plant_growth_chart(tmp_path: pathlib.Path, config_data: dict) -> None:
     None
     """
     path_to_save_file = config_data["rimworld_save_file_path"]
-    plant_dataframe = extract.save.Save(path_to_save_file=path_to_save_file).plant.dataframe
+    plant_dataframe = extract.save.Save(path_to_save_file=path_to_save_file).plant["dataframe"]
     labels = {"plant_growth_bin": "Plant growth (%)"}
     plant_growth_chart_html = view.summary_report.get_histogram_html(dataframe=plant_dataframe,
         x_axis_field="plant_growth_bin", labels=labels)
