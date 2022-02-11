@@ -6,29 +6,30 @@
 
 * Implement a `Save` class with a namespace for accessing key data points and datasets
 
-    ```text
-    Save.data
-    ├───datasets
-    │   ├───mod
-    │   │   ├───dataframe
-    │   │   └───dictionary_list
-    │   ├───pawn
-    │   │   ├───dataframe
-    │   │   └───dictionary_list
-    │   ├───plant
-    │   │   ├───dataframe
-    │   │   └───dictionary_list
-    │   └───weather
-    │       ├───dataframe
-    │       └───dictionary_list
-    ├───file_size
-    ├───game_version
-    ├───path
-    └───root
-    ```
+```text
+Save.data
+├───datasets
+│   ├───mod
+│   │   ├───dataframe
+│   │   └───dictionary_list
+│   ├───pawn
+│   │   ├───dataframe
+│   │   └───dictionary_list
+│   ├───plant
+│   │   ├───dataframe
+│   │   └───dictionary_list
+│   └───weather
+│       ├───dataframe
+│       └───dictionary_list
+├───file_size
+├───game_version
+├───path
+└───root
+```
 
-    The pandas DataFrame containing plant information for the save file can be accessed through `Save.data.datasets.plant.dataframe`. The namespace is created using `bunch`.
+* The pandas DataFrame containing plant information for the save file can be accessed through `Save.data.datasets.plant.dataframe`. The namespace is created using `bunch`.
 * Consolidate all functions related to loading or modifying save data in the `Save` class
+* Bump `plotly` to 5.6.0
 
 ## [0.3.0](https://github.com/stone-tech-inc/rimhistory/tree/v0.3.0) (2022-02-09)
 
