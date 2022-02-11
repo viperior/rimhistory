@@ -1,5 +1,6 @@
 """Extract XML data from a RimWorld save file and return elements"""
 
+import json
 import logging
 import os
 import pathlib
@@ -25,6 +26,13 @@ class Save:
 
         # Parse the XML document and get the root
         self.data.root = xml.etree.ElementTree.parse(self.data.path).getroot()
+
+        # Pre-process the save file by removing extraneous information
+        with open("defaults.json", "r", encoding="utf_8") as defaults_file:
+            defaults_data = json.load(defaults_file)
+
+        self.data.xml_elements_remove_list = defaults_data["xml_elements_remove_list"]
+        self.reduce_xml_data()
 
         # Extract singular data points
         self.data.file_size = os.path.getsize(self.data.path)
@@ -174,6 +182,58 @@ class Save:
 
             # Generate the pandas dataframe from the list of dictionaries in dictionary_list
             dataset.dataframe = pandas.DataFrame(dataset.dictionary_list)
+
+
+    def reduce_xml_data(self) -> None:
+        """Remove unnecessary information from the XML tree using a list of XPath patterns
+
+        Parameters:
+        None
+
+        Returns:
+        None
+        """
+
+        for search_pattern in self.data.xml_elements_remove_list:
+            logging.debug("Removing XML elements matching search pattern: %s", search_pattern)
+            self.remove_matching_elements(search_pattern=search_pattern)
+
+
+    def remove_matching_elements(self, search_pattern: str) -> None:
+        """Remove XML elements matching the given search pattern
+
+        Parameters:
+        search_pattern (str): The XPath search pattern to use to find matching elements in the tree
+
+        Returns:
+        None
+        """
+        elements_removed_count = 0
+        sentry = True
+
+        while sentry:
+            element = self.data.root.find(search_pattern)
+            starting_element_removed_count = elements_removed_count
+
+            if element is None:
+                logging.debug("Element matching pattern (%s) not found", search_pattern)
+            else:
+                logging.debug("Element matching pattern found: %s; Targeting parent element",
+                    element.tag)
+                parent_element_search_pattern = f"{search_pattern}/.."
+                parent = self.data.root.find(parent_element_search_pattern)
+                assert isinstance(parent, xml.etree.ElementTree.Element)
+
+                if parent is not None:
+                    logging.debug("Parent element found. Proceeding with removal of child element")
+                    parent.remove(element)
+                    elements_removed_count += 1
+
+            # If no element was removed, stop trying to remove new occurrences
+            if elements_removed_count == starting_element_removed_count:
+                sentry = False
+
+        logging.debug("%d elements removed total", elements_removed_count)
 
 
     @staticmethod
