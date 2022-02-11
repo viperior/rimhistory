@@ -16,7 +16,7 @@ def test_class_save_pawn(config_data: dict) -> None:
     None
     """
     save = Save(config_data["rimworld_save_file_path"])
-    pawn_data = save.pawn["dictionary_list"]
+    pawn_data = save.data.datasets.pawn.dictionary_list
 
     # Test the pawn property's data type
     assert isinstance(pawn_data, list)
@@ -38,7 +38,7 @@ def test_class_save_root(config_data: dict) -> None:
     Returns:
     None
     """
-    save = Save(config_data["rimworld_save_file_path"]).root
+    save = Save(config_data["rimworld_save_file_path"]).data.root
 
     # Test the Save class's root property data type
     assert isinstance(save, xml.etree.ElementTree.Element)

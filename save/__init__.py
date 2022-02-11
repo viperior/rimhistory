@@ -5,6 +5,7 @@ import os
 import pathlib
 import xml.etree.ElementTree
 
+from bunch import Bunch
 import pandas
 
 
@@ -19,23 +20,30 @@ class Save:
         Returns:
         None
         """
-        # Parse the XML document and get the root
-        self.path = path_to_save_file
-        self.root = xml.etree.ElementTree.parse(self.path).getroot()
+        self.data = Bunch()
+        self.data.path = path_to_save_file
 
-        # Extract singular data points and sets of data
-        self.file_size = os.path.getsize(self.path)
-        self.game_version = self.root.find("./meta/gameVersion").text
-        self.mod = {"dictionary_list": self.extract_mod_list()}
-        self.pawn = {"dictionary_list": self.extract_pawn_data()}
-        self.plant = {"dictionary_list": self.extract_plant_data()}
-        self.weather = {"dictionary_list": self.extract_weather_data()}
+        # Parse the XML document and get the root
+        self.data.root = xml.etree.ElementTree.parse(self.data.path).getroot()
+
+        # Extract singular data points
+        self.data.file_size = os.path.getsize(self.data.path)
+        self.data.game_version = self.data.root.find("./meta/gameVersion").text
+
+        # Extract datasets
+        self.data.datasets = Bunch(
+            mod = Bunch(dictionary_list = self.extract_mod_list()),
+            pawn = Bunch(dictionary_list = self.extract_pawn_data()),
+            plant = Bunch(dictionary_list = self.extract_plant_data()),
+            weather = Bunch(dictionary_list = self.extract_weather_data()),
+        )
 
         # Generate pandas DataFrames from each dataset initialized as a list of dictionaries
-        self.generate_dataframes(datasets=[self.mod, self.pawn, self.plant, self.weather])
+        self.generate_dataframes()
 
         # Apply transformations to DataFrames
-        self.plant["dataframe"] = self.transform_plant_dataframe(dataframe=self.plant["dataframe"])
+        self.data.datasets.plant.dataframe = self.transform_plant_dataframe(
+            dataframe=self.data.datasets.plant.dataframe)
 
 
     def extract_mod_list(self) -> list:
@@ -47,9 +55,9 @@ class Save:
         Returns:
         list: A list of dictionaries with each installed mod's metadata
         """
-        mod_ids = self.root.findall("./meta/modIds")
-        mod_steam_ids = self.root.findall("./meta/modSteamIds")
-        mod_names = self.root.findall("./meta/modNames")
+        mod_ids = self.data.root.findall("./meta/modIds")
+        mod_steam_ids = self.data.root.findall("./meta/modSteamIds")
+        mod_names = self.data.root.findall("./meta/modNames")
         mod_list = []
 
         for index, mod_id in enumerate(mod_ids[0]):
@@ -72,7 +80,7 @@ class Save:
         Returns:
         list: The list of dictionaries containing pawn data
         """
-        pawn_data_elements = self.root.findall(".//li[@Class='Tale_SinglePawn']")
+        pawn_data_elements = self.data.root.findall(".//li[@Class='Tale_SinglePawn']")
         pawn_data = []
 
         for element in pawn_data_elements:
@@ -105,7 +113,7 @@ class Save:
         list: The list of dictionaries containing plant data
         """
         search_pattern = ".//thing[@Class='Plant']"
-        xml_elements = self.root.findall(search_pattern)
+        xml_elements = self.data.root.findall(search_pattern)
         plant_data = []
 
         for element in xml_elements:
@@ -131,7 +139,7 @@ class Save:
         Returns:
         dict: A dictionary containing weather data for the current map
         """
-        element = self.root.find(".//weatherManager")
+        element = self.data.root.find(".//weatherManager")
         weather_data = {
             "weather_current": element.find(".//curWeather").text,
             "weather_current_age": element.find(".//curWeatherAge").text,
@@ -144,29 +152,28 @@ class Save:
         return weather_data_list
 
 
-    @staticmethod
-    def generate_dataframes(datasets: list) -> None:
-        """Generate pandas DataFrames for each input dictionary in the datasets list
+    def generate_dataframes(self) -> None:
+        """Generate pandas DataFrames for each dataset
 
         Parameters:
-        datasets (list): A list of dictionaries containing a dictionary_list key
+        None
 
         Returns:
         None
         """
         # Validate the input list length
-        assert 1 <= len(datasets) <= 100
+        assert 1 <= len(self.data.datasets) <= 100
 
-        logging.debug("Generating pandas DataFrames for %d datasets", len(datasets))
+        logging.debug("Generating pandas DataFrames for %d datasets", len(self.data.datasets))
 
-        for dataset in datasets:
+        for dataset_name, dataset in self.data.datasets.items():
             # Validate the input dictionary and keys
             assert isinstance(dataset, dict)
-            assert "dictionary_list" in dataset.keys()
+            assert isinstance(dataset_name, str)
             assert "dataframe" not in dataset.keys()
 
             # Generate the pandas dataframe from the list of dictionaries in dictionary_list
-            dataset["dataframe"] = pandas.DataFrame(dataset["dictionary_list"])
+            dataset.dataframe = pandas.DataFrame(dataset.dictionary_list)
 
 
     @staticmethod

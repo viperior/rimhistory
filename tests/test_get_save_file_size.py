@@ -12,5 +12,5 @@ def test_get_save_file_size(config_data: dict) -> None:
     Returns:
     None
     """
-    file_size = Save(path_to_save_file=config_data["rimworld_save_file_path"]).file_size
+    file_size = Save(path_to_save_file=config_data["rimworld_save_file_path"]).data.file_size
     assert  6200000 <= file_size <= 6700000
