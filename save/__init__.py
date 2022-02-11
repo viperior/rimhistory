@@ -1,9 +1,11 @@
 """Extract XML data from a RimWorld save file and return elements"""
 
+import glob
 import json
 import logging
 import os
 import pathlib
+import re
 import xml.etree.ElementTree
 
 from bunch import Bunch
@@ -252,3 +254,70 @@ class Save:
         bins = range(0, 101, 5)
         dataframe["plant_growth_bin"] = pandas.cut(dataframe["plant_growth_percentage"], bins,
             labels=bins[1:])
+
+
+class SaveSeries:
+    """Manage the ELT process for a series of RimWorld game save files"""
+    def __init__(self, save_dir_path: pathlib.Path, save_file_regex_pattern: str) -> None:
+        """Initialize the SaveSeries object
+
+        Parameters:
+        save_dir_path (pathlib.Path): The directory containing the RimWorld save files
+        save_file_regex_pattern (str): A regex pattern matching a series of associated save files
+
+        Returns:
+        None
+        """
+        self.dictionary = {}
+        logging.debug("Initializing SaveSeries object with arguments:\n\tsave_dir_path = %s\n\t\
+            regex = %s", save_dir_path, save_file_regex_pattern)
+        self.save_dir_path = save_dir_path
+        self.save_file_regex_pattern = save_file_regex_pattern
+        self.scan_save_file_dir()
+        self.load_save_data()
+
+
+    def load_save_data(self) -> None:
+        """Iterate through the save file list and store each in a Save object
+
+        Parameters:
+        None
+
+        Returns:
+        None
+        """
+        for save_file_base_name, save_file_dictionary in self.dictionary.items():
+            logging.debug("Loading data for save file into series: %s", save_file_base_name)
+            save_file_dictionary["save"] = Save(path_to_save_file=save_file_dictionary["path"])
+            logging.debug("Finished loading data for save file into series: %s",
+                save_file_base_name)
+
+
+    def scan_save_file_dir(self) -> None:
+        """Populate the dictionary property for saves files matching save_file_regex_pattern
+
+        Parameters:
+        None
+
+        Returns:
+        None
+        """
+        saves_all = glob.glob(f"{self.save_dir_path}/*.rws")
+        logging.debug("saves_all = %s", saves_all)
+        logging.debug("Using regex pattern for search = %s", self.save_file_regex_pattern)
+
+        for save_path in saves_all:
+            if re.match(self.save_file_regex_pattern, os.path.basename(save_path)):
+                logging.debug("Match found in file base name: %s", os.path.basename(save_path))
+            else:
+                logging.debug("Match NOT found in file base name: %s", os.path.basename(save_path))
+
+        saves_filtered = [
+            save_path for save_path in saves_all\
+                if re.match(self.save_file_regex_pattern, os.path.basename(save_path))
+        ]
+        logging.debug("saves_filtered = %s", saves_filtered)
+
+        for save_path in saves_filtered:
+            base_name = os.path.basename(save_path)
+            self.dictionary[base_name] = {"path": save_path}
