@@ -50,8 +50,7 @@ class Save:
         self.generate_dataframes()
 
         # Apply transformations to DataFrames
-        self.data.datasets.plant.dataframe = self.transform_plant_dataframe(
-            dataframe=self.data.datasets.plant.dataframe)
+        self.transform_plant_dataframe()
 
 
     def extract_mod_list(self) -> list:
@@ -236,23 +235,20 @@ class Save:
         logging.debug("%d elements removed total", elements_removed_count)
 
 
-    @staticmethod
-    def transform_plant_dataframe(dataframe: pandas.core.frame.DataFrame) ->\
-        pandas.core.frame.DataFrame:
+    def transform_plant_dataframe(self) -> None:
         """Transform the plants DataFrame by adding calculated columns
 
         Parameters:
-        dataframe (pandas.core.frame.DataFrame): The original pandas DataFrame with plant data
+        None
 
         Returns:
-        pandas.core.frame.DataFrame: The modified DataFrame
+        None
         """
         # Create a column by converting plant_growth to a float and multiplying it by 100
+        dataframe = self.data.datasets.plant.dataframe
         dataframe["plant_growth_percentage"] = dataframe["plant_growth"].astype(float) * 100
 
         # Bin the percentage values in ranges for visualization and summarized reporting
         bins = range(0, 101, 5)
         dataframe["plant_growth_bin"] = pandas.cut(dataframe["plant_growth_percentage"], bins,
             labels=bins[1:])
-
-        return dataframe
