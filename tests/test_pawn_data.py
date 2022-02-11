@@ -1,6 +1,6 @@
 """Test the extraction of pawn data from the save file"""
 
-import extract.save
+from save import Save
 
 
 def test_get_pawn_count(config_data: dict) -> None:
@@ -13,6 +13,6 @@ def test_get_pawn_count(config_data: dict) -> None:
     None
     """
     path_to_save_file = config_data["rimworld_save_file_path"]
-    pawn_data = extract.save.Save(path_to_save_file=path_to_save_file).pawn["dictionary_list"]
+    pawn_data = Save(path_to_save_file=path_to_save_file).pawn["dictionary_list"]
 
     assert len(pawn_data) == 3

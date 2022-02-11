@@ -2,7 +2,7 @@
 
 import logging
 
-import extract.save
+from save import Save
 
 
 def test_pawn_ambient_temperature(config_data: dict) -> None:
@@ -15,7 +15,7 @@ def test_pawn_ambient_temperature(config_data: dict) -> None:
     None
     """
     path_to_save_file = config_data["rimworld_save_file_path"]
-    pawn_data = extract.save.Save(path_to_save_file=path_to_save_file).pawn["dictionary_list"]
+    pawn_data = Save(path_to_save_file=path_to_save_file).pawn["dictionary_list"]
     logging.debug(pawn_data[0].keys())
 
     assert "pawn_ambient_temperature" in pawn_data[0].keys()

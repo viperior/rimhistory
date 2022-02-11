@@ -9,7 +9,7 @@ import pandas
 import plotly.express
 
 import extract.extract_save_data
-import extract.save
+from save import Save
 
 
 def get_environment_section(pawn_data: list, weather_data: dict) -> None:
@@ -69,7 +69,7 @@ def generate_summary_report(path_to_save_file: pathlib.Path, output_path: pathli
     Returns:
     None
     """
-    save = extract.save.Save(path_to_save_file=path_to_save_file)
+    save = Save(path_to_save_file=path_to_save_file)
     doc = dominate.document(title='RimWorld Save Game Summary Report')
 
     with doc.head:

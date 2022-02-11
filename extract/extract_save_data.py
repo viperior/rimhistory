@@ -5,7 +5,7 @@ import logging
 import os
 import xml.etree.ElementTree
 
-import extract.save
+from save import Save
 
 
 def extract_rimworld_save_data() -> None:
@@ -19,7 +19,7 @@ def extract_rimworld_save_data() -> None:
     """
     logging.debug("Processing save file: %s", get_save_file_path())
     logging.debug("Starting recursion")
-    recurse_children(parent=extract.save.Save(path_to_save_file=get_save_file_path()).root)
+    recurse_children(parent=Save(path_to_save_file=get_save_file_path()).root)
     logging.debug("Recursion complete")
 
 

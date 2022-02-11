@@ -4,7 +4,7 @@ import logging
 
 import pandas
 
-import extract.save
+from save import Save
 
 
 def test_plant_dataframe(config_data: dict) -> None:
@@ -16,7 +16,7 @@ def test_plant_dataframe(config_data: dict) -> None:
     Returns:
     None
     """
-    save = extract.save.Save(path_to_save_file=config_data["rimworld_save_file_path"])
+    save = Save(path_to_save_file=config_data["rimworld_save_file_path"])
     plant_dataframe = save.plant["dataframe"]
 
     # Test the data type of the frame

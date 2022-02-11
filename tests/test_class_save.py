@@ -3,7 +3,7 @@
 import logging
 import xml.etree.ElementTree
 
-import extract.save
+from save import Save
 
 
 def test_class_save_pawn(config_data: dict) -> None:
@@ -15,7 +15,7 @@ def test_class_save_pawn(config_data: dict) -> None:
     Returns:
     None
     """
-    save = extract.save.Save(config_data["rimworld_save_file_path"])
+    save = Save(config_data["rimworld_save_file_path"])
     pawn_data = save.pawn["dictionary_list"]
 
     # Test the pawn property's data type
@@ -38,7 +38,7 @@ def test_class_save_root(config_data: dict) -> None:
     Returns:
     None
     """
-    save = extract.save.Save(config_data["rimworld_save_file_path"]).root
+    save = Save(config_data["rimworld_save_file_path"]).root
 
     # Test the Save class's root property data type
     assert isinstance(save, xml.etree.ElementTree.Element)
