@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.4.0](https://github.com/stone-tech-inc/rimhistory/tree/v0.4.0) (TBD)
+## [0.4.0](https://github.com/stone-tech-inc/rimhistory/tree/v0.4.0) (2022-02-11)
 
 ### Improvements
 
