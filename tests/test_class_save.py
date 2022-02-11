@@ -52,3 +52,18 @@ def test_class_save_root(config_data: dict) -> None:
 
     for index, child in enumerate(element):
         logging.debug("child element #%d data = %s, %s", index, child.tag, child.text)
+
+
+def test_game_time_ticks(config_data: dict) -> None:
+    """Test the Save class's game_time_ticks property
+
+    Parameters:
+    config_data (dict): The project configuration data as a dictionary (fixture)
+
+    Returns:
+    None
+    """
+    game_time_ticks = Save(config_data["rimworld_save_file_path"]).data.game_time_ticks
+    logging.debug("game_time_ticks = %d", game_time_ticks)
+    assert isinstance(game_time_ticks, int)
+    assert game_time_ticks == 8337

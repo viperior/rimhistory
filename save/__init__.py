@@ -39,6 +39,7 @@ class Save:
         # Extract singular data points
         self.data.file_size = os.path.getsize(self.data.path)
         self.data.game_version = self.data.root.find("./meta/gameVersion").text
+        self.data.game_time_ticks = int(self.data.root.find(".//tickManager/ticksGame").text)
 
         # Extract datasets
         self.data.dataset = Bunch(
