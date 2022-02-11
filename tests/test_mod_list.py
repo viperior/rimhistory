@@ -16,7 +16,7 @@ def test_mod_list(config_data: dict) -> None:
     None
     """
     path_to_save_file = config_data["rimworld_save_file_path"]
-    mod_list = Save(path_to_save_file=path_to_save_file).data.datasets.mod.dictionary_list
+    mod_list = Save(path_to_save_file=path_to_save_file).data.dataset.mod.dictionary_list
     assert 0 < len(mod_list) < 20000
     logging.debug("List of installed mods = \n%s", json.dumps(mod_list, indent=4))
 

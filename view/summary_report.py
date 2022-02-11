@@ -82,10 +82,10 @@ def generate_summary_report(path_to_save_file: pathlib.Path, output_path: pathli
             p(save.data.game_version)
             h2("File Size")
             p(f"{save.data.file_size} bytes")
-            h2(f"Installed Mods ({len(save.data.datasets.mod.dictionary_list)})")
+            h2(f"Installed Mods ({len(save.data.dataset.mod.dictionary_list)})")
 
             with ul():
-                for mod in save.data.datasets.mod.dictionary_list:
+                for mod in save.data.dataset.mod.dictionary_list:
                     mod_list_item_content = mod["mod_name"]
                     mod_steam_id = mod["mod_steam_id"]
 
@@ -94,18 +94,18 @@ def generate_summary_report(path_to_save_file: pathlib.Path, output_path: pathli
 
                     li(mod_list_item_content)
 
-            h2(f"Colonists ({len(save.data.datasets.pawn['dictionary_list'])})")
+            h2(f"Colonists ({len(save.data.dataset.pawn['dictionary_list'])})")
 
             with ul():
-                for pawn in save.data.datasets.pawn.dictionary_list:
+                for pawn in save.data.dataset.pawn.dictionary_list:
                     li(f"{pawn['pawn_name_full']}, age {pawn['pawn_biological_age']}")
 
-            h2(f"Plants ({len(save.data.datasets.plant['dictionary_list'])})")
+            h2(f"Plants ({len(save.data.dataset.plant['dictionary_list'])})")
 
             with ul():
                 displayed_plant_types = []
 
-                for plant in save.data.datasets.plant.dictionary_list:
+                for plant in save.data.dataset.plant.dictionary_list:
                     if plant['plant_definition'] in displayed_plant_types:
                         continue
 
@@ -120,7 +120,7 @@ def generate_summary_report(path_to_save_file: pathlib.Path, output_path: pathli
                     if len(displayed_plant_types) >= 20:
                         break
 
-            plant_dataframe = save.data.datasets.plant.dataframe
+            plant_dataframe = save.data.dataset.plant.dataframe
             p(raw(plant_dataframe.head().to_html()))
             p(raw(plant_dataframe.tail().to_html()))
             p(raw(plant_dataframe.describe().to_html()))
@@ -133,8 +133,8 @@ def generate_summary_report(path_to_save_file: pathlib.Path, output_path: pathli
                 )
             )
             get_environment_section(
-                pawn_data=save.data.datasets.pawn.dictionary_list,
-                weather_data=save.data.datasets.weather.dictionary_list[0]
+                pawn_data=save.data.dataset.pawn.dictionary_list,
+                weather_data=save.data.dataset.weather.dictionary_list[0]
             )
 
     with open(output_path, "w", encoding="utf_8") as output_file:

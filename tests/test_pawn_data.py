@@ -13,6 +13,6 @@ def test_get_pawn_count(config_data: dict) -> None:
     None
     """
     path_to_save_file = config_data["rimworld_save_file_path"]
-    pawn_data = Save(path_to_save_file=path_to_save_file).data.datasets.pawn.dictionary_list
+    pawn_data = Save(path_to_save_file=path_to_save_file).data.dataset.pawn.dictionary_list
 
     assert len(pawn_data) == 3

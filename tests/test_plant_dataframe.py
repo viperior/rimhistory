@@ -17,7 +17,7 @@ def test_plant_dataframe(config_data: dict) -> None:
     None
     """
     save = Save(path_to_save_file=config_data["rimworld_save_file_path"])
-    plant_dataframe = save.data.datasets.plant.dataframe
+    plant_dataframe = save.data.dataset.plant.dataframe
 
     # Test the data type of the frame
     logging.debug("type(plant_dataframe) = %s", type(plant_dataframe))

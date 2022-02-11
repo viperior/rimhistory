@@ -41,7 +41,7 @@ class Save:
         self.data.game_version = self.data.root.find("./meta/gameVersion").text
 
         # Extract datasets
-        self.data.datasets = Bunch(
+        self.data.dataset = Bunch(
             mod = Bunch(dictionary_list = self.extract_mod_list()),
             pawn = Bunch(dictionary_list = self.extract_pawn_data()),
             plant = Bunch(dictionary_list = self.extract_plant_data()),
@@ -171,11 +171,11 @@ class Save:
         None
         """
         # Validate the input list length
-        assert 1 <= len(self.data.datasets) <= 100
+        assert 1 <= len(self.data.dataset) <= 100
 
-        logging.debug("Generating pandas DataFrames for %d datasets", len(self.data.datasets))
+        logging.debug("Generating pandas DataFrames for %d datasets", len(self.data.dataset))
 
-        for dataset_name, dataset in self.data.datasets.items():
+        for dataset_name, dataset in self.data.dataset.items():
             # Validate the input dictionary and keys
             assert isinstance(dataset, dict)
             assert isinstance(dataset_name, str)
@@ -247,7 +247,7 @@ class Save:
         None
         """
         # Create a column by converting plant_growth to a float and multiplying it by 100
-        dataframe = self.data.datasets.plant.dataframe
+        dataframe = self.data.dataset.plant.dataframe
         dataframe["plant_growth_percentage"] = dataframe["plant_growth"].astype(float) * 100
 
         # Bin the percentage values in ranges for visualization and summarized reporting
