@@ -8,7 +8,7 @@ from dominate.tags import attr, div, h1, h2, h3, li, link, p, ul
 import pandas
 import plotly.express
 
-import extract.extract_save_data
+from save import Save
 
 
 def get_environment_section(pawn_data: list, weather_data: dict) -> None:
@@ -58,16 +58,17 @@ def get_histogram_html(dataframe: pandas.core.frame.DataFrame, x_axis_field: str
     return fig.to_html(full_html=False)
 
 
-def generate_summary_report(output_path: pathlib.Path) -> None:
+def generate_summary_report(path_to_save_file: pathlib.Path, output_path: pathlib.Path) -> None:
     """Generate an HTML report with a list of the installed mods found
 
     Parameters:
+    path_to_save_file (pathlib.Path): The path to the save file from which to source the data
     output_path (pathlib.Path): The file path where the report should be created
 
     Returns:
     None
     """
-    mod_list = extract.extract_save_data.extract_mod_list()
+    save = Save(path_to_save_file=path_to_save_file)
     doc = dominate.document(title='RimWorld Save Game Summary Report')
 
     with doc.head:
@@ -78,13 +79,13 @@ def generate_summary_report(output_path: pathlib.Path) -> None:
             attr(cls='body')
             h1("RimWorld Save Game Summary")
             h2("Game Version")
-            p(extract.extract_save_data.extract_game_version())
+            p(save.data.game_version)
             h2("File Size")
-            p(f"{extract.extract_save_data.get_save_file_size()} bytes")
-            h2(f"Installed Mods ({len(mod_list)})")
+            p(f"{save.data.file_size} bytes")
+            h2(f"Installed Mods ({len(save.data.datasets.mod.dictionary_list)})")
 
             with ul():
-                for mod in mod_list:
+                for mod in save.data.datasets.mod.dictionary_list:
                     mod_list_item_content = mod["mod_name"]
                     mod_steam_id = mod["mod_steam_id"]
 
@@ -93,19 +94,18 @@ def generate_summary_report(output_path: pathlib.Path) -> None:
 
                     li(mod_list_item_content)
 
-            h2(f"Colonists ({extract.extract_save_data.get_pawn_count()})")
+            h2(f"Colonists ({len(save.data.datasets.pawn['dictionary_list'])})")
 
             with ul():
-                for pawn in extract.extract_save_data.get_pawn_data():
+                for pawn in save.data.datasets.pawn.dictionary_list:
                     li(f"{pawn['pawn_name_full']}, age {pawn['pawn_biological_age']}")
 
-            h2(f"Plants ({extract.extract_save_data.get_plant_count()})")
-            plant_data_raw = extract.extract_save_data.get_plant_data()
+            h2(f"Plants ({len(save.data.datasets.plant['dictionary_list'])})")
 
             with ul():
                 displayed_plant_types = []
 
-                for plant in plant_data_raw:
+                for plant in save.data.datasets.plant.dictionary_list:
                     if plant['plant_definition'] in displayed_plant_types:
                         continue
 
@@ -120,8 +120,7 @@ def generate_summary_report(output_path: pathlib.Path) -> None:
                     if len(displayed_plant_types) >= 20:
                         break
 
-            plant_dataframe = extract.extract_save_data.plant_dataframe(dictionary_list=\
-                plant_data_raw)
+            plant_dataframe = save.data.datasets.plant.dataframe
             p(raw(plant_dataframe.head().to_html()))
             p(raw(plant_dataframe.tail().to_html()))
             p(raw(plant_dataframe.describe().to_html()))
@@ -134,8 +133,8 @@ def generate_summary_report(output_path: pathlib.Path) -> None:
                 )
             )
             get_environment_section(
-                pawn_data=extract.extract_save_data.get_pawn_data(),
-                weather_data=extract.extract_save_data.get_weather_data()
+                pawn_data=save.data.datasets.pawn.dictionary_list,
+                weather_data=save.data.datasets.weather.dictionary_list[0]
             )
 
     with open(output_path, "w", encoding="utf_8") as output_file:

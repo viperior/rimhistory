@@ -8,6 +8,8 @@ astroid==2.9.3
     # via pylint
 attrs==21.4.0
     # via pytest
+bunch==1.0.1
+    # via -r requirements.in
 coverage==6.3.1
     # via -r requirements.in
 dominate==2.6.0
@@ -73,6 +75,10 @@ tomli==2.0.0
     # via pytest
 tqdm==4.62.3
     # via -r requirements.in
+typing-extensions==4.0.1
+    # via
+    #   astroid
+    #   pylint
 wrapt==1.13.3
     # via astroid
 

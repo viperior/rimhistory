@@ -1,16 +1,18 @@
 """Test the extraction of pawn data from the save file"""
 
-import extract.extract_save_data
+from save import Save
 
 
-def test_get_pawn_count() -> None:
+def test_get_pawn_count(config_data: dict) -> None:
     """Test counting the number of pawns identified from the save data
 
     Parameters:
-    file_path (str): The path to the save game file
-    expected (int): The number of expected pawns to find in the corresponding save data
+    config_data (dict): The project configuration data as a dictionary (fixture)
 
     Returns:
     None
     """
-    assert extract.extract_save_data.get_pawn_count() == 3
+    path_to_save_file = config_data["rimworld_save_file_path"]
+    pawn_data = Save(path_to_save_file=path_to_save_file).data.datasets.pawn.dictionary_list
+
+    assert len(pawn_data) == 3

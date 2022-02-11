@@ -1,21 +1,22 @@
-"""Test the extract_mod_list function that extracta data about installed mods from a save file"""
+"""Test the extract_mod_list function that extracts data about installed mods from a save file"""
 import json
 import logging
 
-import extract.extract_save_data
+from save import Save
 
 
-def test_mod_list() -> None:
+def test_mod_list(config_data: dict) -> None:
     """Test the extract_mod_list function that extracts data about installed mods from a save
     file
 
     Parameters:
-    None
+    config_data (dict): The project configuration data as a dictionary (fixture)
 
     Returns:
     None
     """
-    mod_list = extract.extract_save_data.extract_mod_list()
+    path_to_save_file = config_data["rimworld_save_file_path"]
+    mod_list = Save(path_to_save_file=path_to_save_file).data.datasets.mod.dictionary_list
     assert 0 < len(mod_list) < 20000
     logging.debug("List of installed mods = \n%s", json.dumps(mod_list, indent=4))
 

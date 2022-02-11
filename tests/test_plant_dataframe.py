@@ -4,20 +4,20 @@ import logging
 
 import pandas
 
-import extract.extract_save_data
+from save import Save
 
 
-def test_plant_dataframe() -> None:
+def test_plant_dataframe(config_data: dict) -> None:
     """Test the plant_dataframe function
 
     Parameters:
-    None
+    config_data (dict): The project configuration data as a dictionary (fixture)
 
     Returns:
     None
     """
-    plant_data_raw = extract.extract_save_data.get_plant_data()
-    plant_dataframe = extract.extract_save_data.plant_dataframe(dictionary_list=plant_data_raw)
+    save = Save(path_to_save_file=config_data["rimworld_save_file_path"])
+    plant_dataframe = save.data.datasets.plant.dataframe
 
     # Test the data type of the frame
     logging.debug("type(plant_dataframe) = %s", type(plant_dataframe))
