@@ -8,7 +8,6 @@ from dominate.tags import attr, div, h1, h2, h3, li, link, p, ul
 import pandas
 import plotly.express
 
-import extract.extract_save_data
 from save import Save
 
 
@@ -82,7 +81,7 @@ def generate_summary_report(path_to_save_file: pathlib.Path, output_path: pathli
             h2("Game Version")
             p(save.game_version)
             h2("File Size")
-            p(f"{extract.extract_save_data.get_save_file_size()} bytes")
+            p(f"{save.file_size} bytes")
             h2(f"Installed Mods ({len(save.mod['dictionary_list'])})")
 
             with ul():

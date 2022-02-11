@@ -1,6 +1,7 @@
 """Extract XML data from a RimWorld save file and return elements"""
 
 import logging
+import os
 import pathlib
 import xml.etree.ElementTree
 
@@ -19,9 +20,11 @@ class Save:
         None
         """
         # Parse the XML document and get the root
-        self.root = xml.etree.ElementTree.parse(path_to_save_file).getroot()
+        self.path = path_to_save_file
+        self.root = xml.etree.ElementTree.parse(self.path).getroot()
 
         # Extract singular data points and sets of data
+        self.file_size = os.path.getsize(self.path)
         self.game_version = self.root.find("./meta/gameVersion").text
         self.mod = {"dictionary_list": self.extract_mod_list()}
         self.pawn = {"dictionary_list": self.extract_pawn_data()}
