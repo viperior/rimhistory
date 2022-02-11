@@ -5,23 +5,6 @@ import logging
 import os
 import xml.etree.ElementTree
 
-from save import Save
-
-
-def extract_rimworld_save_data() -> None:
-    """Recurse through all the data
-
-    Parameters:
-    None
-
-    Returns:
-    None
-    """
-    logging.debug("Processing save file: %s", get_save_file_path())
-    logging.debug("Starting recursion")
-    recurse_children(parent=Save(path_to_save_file=get_save_file_path()).root)
-    logging.debug("Recursion complete")
-
 
 def get_element_by_search_pattern(tree: xml.etree.ElementTree, element_search_pattern: str) ->\
     xml.etree.ElementTree.Element:
@@ -144,23 +127,3 @@ def get_save_file_size() -> int:
     file_size = os.path.getsize(rimworld_save_file_path)
 
     return file_size
-
-
-def recurse_children(parent) -> None:
-    """Recurse through all the children of an element
-
-    Parameters:
-    None
-
-    Returns:
-    None
-    """
-    logging.debug("tag: %s; attributes: %s; text: %s", parent.tag, parent.attrib, parent.text)
-
-    for index, child in enumerate(parent):
-        recurse_children(child)
-
-        if index >= 10:
-            logging.debug("10 siblings belong to parent element have been scanned. Skipping to next\
-                 parent node")
-            break
