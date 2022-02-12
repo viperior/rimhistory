@@ -8,6 +8,7 @@ import shutil
 
 import pytest
 
+from save import Save
 from save import SaveSeries
 
 
@@ -44,6 +45,32 @@ def get_test_input_data_sample_save_files() -> list:
     logging.debug("test_input_data = %s", test_input_data)
 
     return test_input_data
+
+
+def test_aggregate_dataframes(tmp_path: pathlib.Path) -> None:
+    """Test the SaveSeries.test_aggregate_dataframes function by validating combined row counts
+
+    Parameters:
+    tmp_path (pathlib.Path): The path used to stage files needed for testing (fixture)
+
+    Returns:
+    None
+    """
+    test_file_count = 3
+    test_file_path_list = [tmp_path / f"mysave {index + 1}.rws" for index in range(test_file_count)]
+    sample_save_file_path = "data/sample_rimworld_save.rws"
+
+    for file_path in test_file_path_list:
+        shutil.copyfile(src=sample_save_file_path, dst=file_path)
+
+    series = SaveSeries(save_dir_path=tmp_path, save_file_regex_pattern=r"mysave\s\d{1,10}")
+    expected_count = len(Save(path_to_save_file=sample_save_file_path).data.dataset.plant.dataframe\
+        .index) * test_file_count
+    actual_count = len(series.dataset.plant.dataframe.index)
+    logging.debug("Dataframe aggregation test result:\nExpected count: %d\nActual count: %d",
+        expected_count, actual_count)
+
+    assert actual_count == expected_count
 
 
 @pytest.mark.parametrize(

@@ -185,6 +185,9 @@ class Save:
             # Generate the pandas dataframe from the list of dictionaries in dictionary_list
             dataset.dataframe = pandas.DataFrame(dataset.dictionary_list)
 
+            # Add a time dimension for in-game time based on ticks passed
+            dataset.dataframe["time_ticks"] = self.data.game_time_ticks
+
 
     def reduce_xml_data(self) -> None:
         """Remove unnecessary information from the XML tree using a list of XPath patterns
@@ -276,6 +279,39 @@ class SaveSeries:
         self.save_file_regex_pattern = save_file_regex_pattern
         self.scan_save_file_dir()
         self.load_save_data()
+        self.dataset = Bunch()
+        self.aggregate_dataframes()
+
+
+    def aggregate_dataframes(self) -> None:
+        """Combine individual save datasets and group using a time dimension
+
+        Parameters:
+        None
+
+        Returns:
+        None
+        """
+        # Get only the keys (names of datasets) from one of the stored save datasets
+        dataset_names = self.dictionary[next(iter(self.dictionary))]["save"].data.dataset.keys()
+        logging.debug("Aggregating datasets: %s", dataset_names)
+
+        for dataset_name in dataset_names:
+            logging.debug("Aggregating snapshots of %s data", dataset_name)
+            frame_combine_list = []
+
+            for save_file_name, save_file_data in self.dictionary.items():
+                logging.debug("Adding data from save file, %s, to %s data aggregation:\n%s",
+                    save_file_name, dataset_name, save_file_data["path"])
+                frame_combine_list.append(
+                    save_file_data["save"].data.dataset[dataset_name].dataframe
+                )
+
+            logging.debug("Concatenating pandas dataframes into singular frame for %s data",
+                dataset_name)
+            self.dataset[dataset_name] = Bunch(dataframe=pandas.concat(frame_combine_list))
+            logging.info("Pandas dataframe combination operation complete for %s data",
+                dataset_name)
 
 
     def load_save_data(self) -> None:

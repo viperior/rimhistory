@@ -32,7 +32,8 @@ def test_plant_dataframe(config_data: dict) -> None:
         "plant_growth",
         "plant_growth_bin",
         "plant_growth_percentage",
-        "plant_age"
+        "plant_age",
+        "time_ticks",
     ]
     logging.debug("Expected columns (count = %d) = %s", len(expected_columns), expected_columns)
     logging.debug("Actual columns (count = %d) = %s", len(plant_dataframe.columns),
