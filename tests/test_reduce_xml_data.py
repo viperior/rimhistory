@@ -1,5 +1,6 @@
 """Test the reduce_xml_data function"""
 
+import logging
 import xml.etree.ElementTree
 
 from save import Save
@@ -25,7 +26,9 @@ def test_reduce_xml_data(config_data: dict) -> None:
 
     # Perform the element removal
     save.data.xml_elements_remove_list.append(search_pattern)
-    save.reduce_xml_data()
+    elements_removed_count = save.reduce_xml_data()
+    logging.info("%d elements removed from XML tree from save: %s", elements_removed_count,
+        save.data.path)
 
     # Test the processed version to confirm the successful removal of items
     output_test_element = save.data.root.find(search_pattern)

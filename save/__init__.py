@@ -199,29 +199,31 @@ class Save:
             dataset.dataframe["time_ticks"] = self.data.game_time_ticks
 
 
-    def reduce_xml_data(self) -> None:
+    def reduce_xml_data(self) -> int:
         """Remove unnecessary information from the XML tree using a list of XPath patterns
 
         Parameters:
         None
 
         Returns:
-        None
+        int: The number of elements removed
         """
+        total_elements_removed_count = 0
 
         for search_pattern in self.data.xml_elements_remove_list:
-            logging.debug("Removing XML elements matching search pattern: %s", search_pattern)
-            self.remove_matching_elements(search_pattern=search_pattern)
+            total_elements_removed_count += self.remove_matching_elements(search_pattern)
+
+        return total_elements_removed_count
 
 
-    def remove_matching_elements(self, search_pattern: str) -> None:
+    def remove_matching_elements(self, search_pattern: str) -> int:
         """Remove XML elements matching the given search pattern
 
         Parameters:
         search_pattern (str): The XPath search pattern to use to find matching elements in the tree
 
         Returns:
-        None
+        int: The number of elements removed
         """
         elements_removed_count = 0
         sentry = True
@@ -230,17 +232,12 @@ class Save:
             element = self.data.root.find(search_pattern)
             starting_element_removed_count = elements_removed_count
 
-            if element is None:
-                logging.debug("Element matching pattern (%s) not found", search_pattern)
-            else:
-                logging.debug("Element matching pattern found: %s; Targeting parent element",
-                    element.tag)
+            if element is not None:
                 parent_element_search_pattern = f"{search_pattern}/.."
                 parent = self.data.root.find(parent_element_search_pattern)
                 assert isinstance(parent, xml.etree.ElementTree.Element)
 
                 if parent is not None:
-                    logging.debug("Parent element found. Proceeding with removal of child element")
                     parent.remove(element)
                     elements_removed_count += 1
 
@@ -248,7 +245,7 @@ class Save:
             if elements_removed_count == starting_element_removed_count:
                 sentry = False
 
-        logging.debug("%d elements removed total", elements_removed_count)
+        return elements_removed_count
 
 
     def transform_plant_dataframe(self) -> None:
