@@ -1,7 +1,9 @@
 """Generate a summary HTML report for RimWorld save game data"""
 
+import json
 import pathlib
 
+import bunch
 import dominate
 from dominate.util import raw
 from dominate.tags import attr, div, h1, h2, h3, li, link, p, ul
@@ -9,6 +11,7 @@ import pandas
 import plotly.express
 
 from save import Save
+from save import SaveSeries
 
 
 def get_environment_section(pawn_data: list, weather_data: dict) -> None:
@@ -68,7 +71,14 @@ def generate_summary_report(path_to_save_file: pathlib.Path, output_path: pathli
     Returns:
     None
     """
+    with open("config.json", "r", encoding="utf_8") as config_file:
+        config_data = json.load(config_file)
+
     save = Save(path_to_save_file=path_to_save_file)
+    series = SaveSeries(
+        save_dir_path=config_data["rimworld_save_file_dir"],
+        save_file_regex_pattern=config_data["rimworld_save_file_series_pattern"]
+    )
     doc = dominate.document(title='RimWorld Save Game Summary Report')
 
     with doc.head:
@@ -100,37 +110,9 @@ def generate_summary_report(path_to_save_file: pathlib.Path, output_path: pathli
                 for pawn in save.data.dataset.pawn.dictionary_list:
                     li(f"{pawn['pawn_name_full']}, age {pawn['pawn_biological_age']}")
 
-            h2(f"Plants ({len(save.data.dataset.plant['dictionary_list'])})")
-
-            with ul():
-                displayed_plant_types = []
-
-                for plant in save.data.dataset.plant.dictionary_list:
-                    if plant['plant_definition'] in displayed_plant_types:
-                        continue
-
-                    displayed_plant_types.append(plant['plant_definition'])
-                    plant_information = (
-                        f"{plant['plant_definition']} - "
-                        f"{plant['plant_growth']} - "
-                        f"{plant['plant_position']}"
-                    )
-                    li(plant_information)
-
-                    if len(displayed_plant_types) >= 20:
-                        break
-
-            plant_dataframe = save.data.dataset.plant.dataframe
-            p(raw(plant_dataframe.head().to_html()))
-            p(raw(plant_dataframe.tail().to_html()))
-            p(raw(plant_dataframe.describe().to_html()))
-            p(raw(plant_dataframe["plant_definition"].value_counts().to_frame().to_html()))
-            raw(
-                get_histogram_html(
-                    dataframe=plant_dataframe,
-                    x_axis_field="plant_growth_bin",
-                    labels={"plant_growth_bin": "Plant growth (%)"}
-                )
+            get_plant_section(
+                current_plant_dataset = save.data.dataset.plant,
+                series_plant_dataset = series.dataset.plant
             )
             get_environment_section(
                 pawn_data=save.data.dataset.pawn.dictionary_list,
@@ -139,3 +121,82 @@ def generate_summary_report(path_to_save_file: pathlib.Path, output_path: pathli
 
     with open(output_path, "w", encoding="utf_8") as output_file:
         output_file.write(str(doc))
+
+def get_plant_section(current_plant_dataset: bunch.Bunch, series_plant_dataset: bunch.Bunch)\
+    -> None:
+    """Build the plant section of the report
+
+    Parameters:
+    current_plant_dataframe (bunch.Bunch): The plant dataset for the current save
+    series_plant_dataframe (bunch.Bunch): The plant dataset for all saves in the series
+
+    Returns:
+    None
+    """
+
+    h2(f"Plants ({len(current_plant_dataset.dictionary_list)})")
+
+    with ul():
+        displayed_plant_types = []
+
+        for plant in current_plant_dataset.dictionary_list:
+            if plant['plant_definition'] in displayed_plant_types:
+                continue
+
+            displayed_plant_types.append(plant['plant_definition'])
+            plant_information = (
+                f"{plant['plant_definition']} - "
+                f"{plant['plant_growth']} - "
+                f"{plant['plant_position']}"
+            )
+            li(plant_information)
+
+            if len(displayed_plant_types) >= 20:
+                break
+
+    plant_dataframe = current_plant_dataset.dataframe
+    p(raw(plant_dataframe.head().to_html()))
+    p(raw(plant_dataframe.tail().to_html()))
+    p(raw(plant_dataframe.describe().to_html()))
+    p(raw(plant_dataframe["plant_definition"].value_counts().to_frame().to_html()))
+    raw(
+        get_histogram_html(
+            dataframe=plant_dataframe,
+            x_axis_field="plant_growth_bin",
+            labels={"plant_growth_bin": "Plant growth (%)"}
+        )
+    )
+    p(raw(series_plant_dataset.dataframe.head().to_html()))
+    p(raw(series_plant_dataset.dataframe.tail().to_html()))
+    p(raw(series_plant_dataset.dataframe.describe().to_html()))
+
+    # Plant chart #1 - Total population
+    plant_agg_df = series_plant_dataset.dataframe\
+        .groupby(["time_ticks"])\
+        .agg({"plant_id": "count"})
+    fig = plotly.express.line(
+        plant_agg_df,
+        title="Plant population over time",
+        markers=True,
+        labels={"time_ticks": "Time", "plant_id": "Plant population"}
+    )
+    raw(fig.to_html(full_html=False))
+
+    # Plant chart #2 - By species
+    plant_agg_by_species_df = series_plant_dataset.dataframe[
+        ["time_ticks", "plant_definition", "plant_id"]
+    ]
+    plant_agg_by_species_df = plant_agg_by_species_df\
+        .groupby(["time_ticks", "plant_definition"])\
+        .agg({"plant_id": "count"})\
+        .reset_index()
+    fig = plotly.express.line(
+        plant_agg_by_species_df,
+        x="time_ticks",
+        y="plant_id",
+        title="Plant population by species over time",
+        markers=True,
+        color="plant_definition",
+        labels={"time_ticks": "Time", "plant_id": "Plant population"}
+    )
+    raw(fig.to_html(full_html=False))
