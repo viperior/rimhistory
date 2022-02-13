@@ -133,8 +133,19 @@ class Save:
                 "plant_map_id": element.find(".//map").text,
                 "plant_position": element.find(".//pos").text,
                 "plant_growth": element.find(".//growth").text,
-                "plant_age": element.find(".//age").text,
             }
+            plant_age = element.find(".//age")
+
+            if plant_age is None:
+                current_element_data["plant_age"] = None
+                logging.debug("Detected plant with no defined age:\n%s", list(element.iter()))
+
+                for child in element:
+                    logging.debug("---\n%s\n%s\n---", child.tag, child.text)
+            elif isinstance(plant_age, xml.etree.ElementTree.Element):
+                current_element_data["plant_age"] = plant_age.text
+
+            current_element_data["plant_age"] = plant_age
             plant_data.append(current_element_data)
 
         return plant_data
