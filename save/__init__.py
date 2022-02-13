@@ -300,7 +300,7 @@ class SaveSeries:
         None
         """
         # Get only the keys (names of datasets) from one of the stored save datasets
-        dataset_names = self.dictionary[next(iter(self.dictionary))]["save"].data.dataset.keys()
+        dataset_names = self.dictionary[list(self.dictionary.keys())[0]]["save"].data.dataset.keys()
         logging.debug("Aggregating datasets: %s", dataset_names)
 
         for dataset_name in dataset_names:
