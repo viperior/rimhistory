@@ -34,7 +34,6 @@ class Save:
             defaults_data = json.load(defaults_file)
 
         self.data.xml_elements_remove_list = defaults_data["xml_elements_remove_list"]
-        self.reduce_xml_data()
 
         # Extract singular data points
         self.data.file_size = os.path.getsize(self.data.path)
