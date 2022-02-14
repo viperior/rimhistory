@@ -350,7 +350,7 @@ class SaveSeries:
                 latest_save_name = save_name
 
         logging.info("Identified save, %s, as the latest save, with %d ticks", latest_save_name,
-            latest_save)
+            max_time_value)
 
         return latest_save
 
