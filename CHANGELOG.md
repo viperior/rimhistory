@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.5.0](https://github.com/stone-tech-inc/rimhistory/tree/v0.5.0) (TBD)
+
+### New features
+
+* Use data from a series of save files to produce time-series datasets and visualizations
+
+### Improvements
+
+* Bump `pandas` to 1.4.1
+* Bump `pytest` to 7.0.1
+
 ## [0.4.0](https://github.com/stone-tech-inc/rimhistory/tree/v0.4.0) (2022-02-11)
 
 ### Improvements
