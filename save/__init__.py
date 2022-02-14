@@ -288,6 +288,7 @@ class SaveSeries:
         self.load_save_data()
         self.dataset = Bunch()
         self.aggregate_dataframes()
+        self.latest_save = self.get_latest_save()
 
 
     def aggregate_dataframes(self) -> None:
@@ -319,6 +320,37 @@ class SaveSeries:
             self.dataset[dataset_name] = Bunch(dataframe=pandas.concat(frame_combine_list))
             logging.info("Pandas dataframe combination operation complete for %s data",
                 dataset_name)
+
+
+    def get_latest_save(self) -> Save:
+        """Return the chronologically latest save by reading the in-game time of each save
+
+        Parameters:
+        None
+
+        Returns:
+        Save: The Save object containing the latest sava data
+        """
+        max_time_value = 0
+        latest_save = None
+        latest_save_name = None
+
+        for save_name, save in self.dictionary.items():
+            current_time_value = save["save"].data.game_time_ticks
+            logging.debug("Checking in-game time for save: %s", save_name)
+            logging.debug("save.data.game_time_ticks > max_time_ticks_value == %s",
+                current_time_value > max_time_value)
+
+            if current_time_value > max_time_value:
+                logging.debug("New max time ticks value identified = %d", current_time_value)
+                max_time_value = current_time_value
+                latest_save = save
+                latest_save_name = save_name
+
+        logging.info("Identified save, %s, as the latest save, with %d ticks", latest_save_name,
+            latest_save)
+
+        return latest_save
 
 
     def load_save_data(self) -> None:
