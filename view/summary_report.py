@@ -1,6 +1,5 @@
 """Generate a summary HTML report for RimWorld save game data"""
 
-import json
 import pathlib
 
 import bunch
@@ -10,7 +9,6 @@ from dominate.tags import attr, div, h1, h2, h3, li, link, p, ul
 import pandas
 import plotly.express
 
-from save import Save
 from save import SaveSeries
 
 
@@ -61,24 +59,23 @@ def get_histogram_html(dataframe: pandas.core.frame.DataFrame, x_axis_field: str
     return fig.to_html(full_html=False)
 
 
-def generate_summary_report(path_to_save_file: pathlib.Path, output_path: pathlib.Path) -> None:
+def generate_summary_report(save_dir_path: pathlib.Path, file_regex_pattern: str,
+    output_path: pathlib.Path) -> None:
     """Generate an HTML report with a list of the installed mods found
 
     Parameters:
-    path_to_save_file (pathlib.Path): The path to the save file from which to source the data
+    save_dir_path (pathlib.Path): The directory where the series of RimWorld save files is stored
+    file_regex_pattern (str): The regex pattern used to select a set of matching RimWorld save files
     output_path (pathlib.Path): The file path where the report should be created
 
     Returns:
     None
     """
-    with open("config.json", "r", encoding="utf_8") as config_file:
-        config_data = json.load(config_file)
-
-    save = Save(path_to_save_file=path_to_save_file)
     series = SaveSeries(
-        save_dir_path=config_data["rimworld_save_file_dir"],
-        save_file_regex_pattern=config_data["rimworld_save_file_series_pattern"]
+        save_dir_path=save_dir_path,
+        save_file_regex_pattern=file_regex_pattern
     )
+    save = series.latest_save["save"]
     doc = dominate.document(title='RimWorld Save Game Summary Report')
 
     with doc.head:
