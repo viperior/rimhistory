@@ -25,7 +25,8 @@ def test_generate_summary_report(output_file_name_base: str, tmp_path: pathlib.P
 
     # Generate the report
     view.summary_report.generate_summary_report(
-        path_to_save_file=config_data["rimworld_save_file_path"],
+        save_dir_path=config_data["rimworld_save_file_dir"],
+        file_regex_pattern=config_data["rimworld_save_file_series_pattern"],
         output_path=output_path
     )
 
