@@ -54,6 +54,8 @@ class Save:
         # Apply transformations to DataFrames
         self.transform_plant_dataframe()
 
+        logging.info("Finished creating new Save object from file: %s", self.data.path)
+
 
     def extract_mod_list(self) -> list:
         """Extract the list of mods installed in the save game
