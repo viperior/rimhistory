@@ -30,7 +30,7 @@ numpy==1.22.2
     #   pandas
 packaging==21.3
     # via pytest
-pandas==1.4.0
+pandas==1.4.1
     # via -r requirements.in
 platformdirs==2.4.0
     # via pylint
@@ -75,10 +75,6 @@ tomli==2.0.0
     # via pytest
 tqdm==4.62.3
     # via -r requirements.in
-typing-extensions==4.0.1
-    # via
-    #   astroid
-    #   pylint
 wrapt==1.13.3
     # via astroid
 
