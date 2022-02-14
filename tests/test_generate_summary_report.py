@@ -8,7 +8,7 @@ import pytest
 import view.summary_report
 
 
-@pytest.mark.parametrize("output_file_name_base", ["test_1", "test_2"])
+@pytest.mark.parametrize("output_file_name_base", ["summary_report"])
 def test_generate_summary_report(output_file_name_base: str, tmp_path: pathlib.Path,
     config_data: dict) -> None:
     """Test the view.summary_report.generate_summary_report function
