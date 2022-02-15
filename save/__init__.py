@@ -157,7 +157,6 @@ class Save:
             elif isinstance(plant_age, xml.etree.ElementTree.Element):
                 current_element_data["plant_age"] = plant_age.text
 
-            current_element_data["plant_age"] = plant_age
             plant_data.append(current_element_data)
 
         return plant_data
