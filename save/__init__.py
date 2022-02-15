@@ -300,7 +300,6 @@ class SaveSeries:
         self.load_save_data()
         self.dataset = Bunch()
         self.aggregate_dataframes()
-        self.latest_save = self.get_latest_save()
 
 
     def aggregate_dataframes(self) -> None:
@@ -334,7 +333,8 @@ class SaveSeries:
                 dataset_name)
 
 
-    def get_latest_save(self) -> Save:
+    @property
+    def latest_save(self) -> Save:
         """Return the chronologically latest save by reading the in-game time of each save
 
         Parameters:
