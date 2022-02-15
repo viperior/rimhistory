@@ -67,3 +67,55 @@ def test_game_time_ticks(config_data: dict) -> None:
     logging.debug("game_time_ticks = %d", game_time_ticks)
     assert isinstance(game_time_ticks, int)
     assert game_time_ticks == 8337
+
+
+def test_null_handling(config_data: dict) -> None:
+    """Test the Save class's add_value_to_dictionary_from_xml_with_null_handling function
+
+    Parameters:
+    config_data (dict): The project configuration data as a dictionary (fixture)
+
+    Returns:
+    None
+    """
+    child_element_tag = "test_child"
+    parent_element_tag = "test_parent"
+    parent_element = xml.etree.ElementTree.Element(parent_element_tag)
+    child_element = xml.etree.ElementTree.SubElement(parent_element, child_element_tag)
+    xml.etree.ElementTree.SubElement(parent_element, "another_child")
+    child_element_text = "99.99999"
+    child_element.text = child_element_text
+    target_key = "test_key"
+
+    # Test adding a plant's growth value when it should be present
+    assert isinstance(child_element, xml.etree.ElementTree.Element)
+    assert child_element.tag == child_element_tag
+    test_dictionary = {}
+    assert isinstance(test_dictionary, dict)
+    assert target_key not in test_dictionary
+    save = Save(path_to_save_file=config_data["rimworld_save_file_path"])
+    save.add_value_to_dictionary_from_xml_with_null_handling(
+        dictionary=test_dictionary,
+        xml_element=child_element,
+        parent_element=parent_element,
+        column_name=target_key
+    )
+    assert target_key in test_dictionary
+    assert isinstance(test_dictionary[target_key], str)
+    assert len(test_dictionary[target_key]) > 2
+    assert test_dictionary[target_key] == child_element_text
+
+    # Test again when the target element is missing
+    test_dictionary = {}
+    parent_element.remove(child_element)
+    child_element = parent_element.find(f".//{child_element_tag}")
+    assert isinstance(test_dictionary, dict)
+    assert target_key not in test_dictionary
+    save.add_value_to_dictionary_from_xml_with_null_handling(
+        dictionary=test_dictionary,
+        xml_element=child_element,
+        parent_element=parent_element,
+        column_name=target_key
+    )
+    assert target_key in test_dictionary
+    assert test_dictionary[target_key] is None
