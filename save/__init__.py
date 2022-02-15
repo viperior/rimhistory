@@ -1,7 +1,6 @@
 """Extract XML data from a RimWorld save file and return elements"""
 
 import glob
-import json
 import logging
 import os
 import pathlib
