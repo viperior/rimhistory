@@ -102,13 +102,24 @@ class Save:
                 "pawn_name_last": element.find(".//pawnData/name/last").text,
                 "pawn_biological_age": element.find(".//pawnData/age").text,
                 "pawn_chronological_age": element.find(".//pawnData/chronologicalAge").text,
-                "pawn_ambient_temperature": element.find(".//surroundings/temperature").text,
             }
             current_pawn["pawn_name_full"] = (
                 f"{current_pawn['pawn_name_first']} "
                 f"\"{current_pawn['pawn_name_nick']}\" "
                 f"{current_pawn['pawn_name_last']}"
             )
+            pawn_ambient_temperature = element.find(".//surroundings/temperature")
+
+            if pawn_ambient_temperature is None:
+                current_pawn["pawn_ambient_temperature"] = None
+                logging.debug("Detected pawn with no defined ambient temperature:\n%s",
+                    list(element.iter()))
+
+                for child in element:
+                    logging.debug("---\n%s\n%s\n---", child.tag, child.text)
+            elif isinstance(pawn_ambient_temperature, xml.etree.ElementTree.Element):
+                current_pawn["pawn_ambient_temperature"] = pawn_ambient_temperature.text
+
             pawn_data.append(current_pawn)
 
         return pawn_data
