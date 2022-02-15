@@ -14,6 +14,8 @@
 * Reduce memory usage by deleting the XML root element as soon as possible after instantiating a Save object
 * Bump `pandas` to 1.4.1
 * Bump `pytest` to 7.0.1
+* Configure `flake8` errors to halt the GitHub Actions build process
+* Clean up code style issues raised by `flake8`
 
 ### Notes
 
