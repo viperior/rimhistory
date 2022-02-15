@@ -81,9 +81,6 @@ class Save:
         """
         if xml_element is None:
             dictionary[column_name] = None
-            logging.error("Detected entity (%s, %s, %s) with no defined %s:\n%s",
-                parent_element.tag, parent_element.text, parent_element.attrib, column_name,
-                list(parent_element.iter()))
             xml_content_dump = ""
 
             for child in parent_element:
@@ -91,7 +88,7 @@ class Save:
                     f"<{child.tag} {{attribs = {child.attrib}}}>{child.text}</{child.tag}>\n"
                 )
 
-            logging.error("XML content with undefined %s\n%s", column_name, xml_content_dump)
+            logging.debug("XML content with undefined %s\n%s", column_name, xml_content_dump)
         elif isinstance(xml_element, xml.etree.ElementTree.Element):
             dictionary[column_name] = xml_element.text
 
