@@ -8,9 +8,9 @@ import pytest
 import view.summary_report
 
 
-@pytest.mark.parametrize("output_file_name_base", ["test_1", "test_2"])
+@pytest.mark.parametrize("output_file_name_base", ["summary_report"])
 def test_generate_summary_report(output_file_name_base: str, tmp_path: pathlib.Path,
-    config_data: dict) -> None:
+                                 config_data: dict) -> None:
     """Test the view.summary_report.generate_summary_report function
 
     Parameters:
@@ -25,7 +25,8 @@ def test_generate_summary_report(output_file_name_base: str, tmp_path: pathlib.P
 
     # Generate the report
     view.summary_report.generate_summary_report(
-        path_to_save_file=config_data["rimworld_save_file_path"],
+        save_dir_path=config_data["rimworld_save_file_dir"],
+        file_regex_pattern=config_data["rimworld_save_file_series_pattern"],
         output_path=output_path
     )
 

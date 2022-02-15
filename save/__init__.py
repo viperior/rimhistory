@@ -1,9 +1,10 @@
 """Extract XML data from a RimWorld save file and return elements"""
 
-import json
+import glob
 import logging
 import os
 import pathlib
+import re
 import xml.etree.ElementTree
 
 from bunch import Bunch
@@ -12,11 +13,14 @@ import pandas
 
 class Save:
     """Extract the XML data from a RimWorld save file and return the elements"""
-    def __init__(self, path_to_save_file: pathlib.Path) -> None:
+    def __init__(self, path_to_save_file: pathlib.Path, reduce_xml: bool = False,
+                 xml_remove_list: list = None, preserve_root: bool = False) -> None:
         """Initialize the Save object by parsing the root XML object using ElementTree
 
         Parameters:
         path_to_save_file (pathlib.Path): The path to the RimWorld save file to be loaded
+        reduce_xml (bool): A Boolean value to toggle XML reduction
+        xml_remove_list (list): The list of XPath patterns to use to remove XML data
 
         Returns:
         None
@@ -27,24 +31,30 @@ class Save:
         # Parse the XML document and get the root
         self.data.root = xml.etree.ElementTree.parse(self.data.path).getroot()
 
-        # Pre-process the save file by removing extraneous information
-        with open("defaults.json", "r", encoding="utf_8") as defaults_file:
-            defaults_data = json.load(defaults_file)
-
-        self.data.xml_elements_remove_list = defaults_data["xml_elements_remove_list"]
-        self.reduce_xml_data()
+        # Reduce XML (optional)
+        if reduce_xml:
+            self.data.xml_elements_remove_list = xml_remove_list
+            elements_removed = self.reduce_xml_data()
+            logging.info("Removed %d XML elements from save file: %s",
+                         elements_removed,
+                         self.data.path)
 
         # Extract singular data points
         self.data.file_size = os.path.getsize(self.data.path)
         self.data.game_version = self.data.root.find("./meta/gameVersion").text
+        self.data.game_time_ticks = int(self.data.root.find(".//tickManager/ticksGame").text)
 
         # Extract datasets
-        self.data.datasets = Bunch(
-            mod = Bunch(dictionary_list = self.extract_mod_list()),
-            pawn = Bunch(dictionary_list = self.extract_pawn_data()),
-            plant = Bunch(dictionary_list = self.extract_plant_data()),
-            weather = Bunch(dictionary_list = self.extract_weather_data()),
+        self.data.dataset = Bunch(
+            mod=Bunch(dictionary_list=self.extract_mod_list()),
+            pawn=Bunch(dictionary_list=self.extract_pawn_data()),
+            plant=Bunch(dictionary_list=self.extract_plant_data()),
+            weather=Bunch(dictionary_list=self.extract_weather_data()),
         )
+
+        # Delete the root object to free up memory
+        if not preserve_root:
+            del self.data.root
 
         # Generate pandas DataFrames from each dataset initialized as a list of dictionaries
         self.generate_dataframes()
@@ -52,6 +62,55 @@ class Save:
         # Apply transformations to DataFrames
         self.transform_plant_dataframe()
 
+        logging.info("Finished creating new Save object from file: %s", self.data.path)
+
+    @staticmethod
+    def add_value_to_dictionary_from_xml_with_null_handling(
+            dictionary: dict, xml_element: xml.etree.ElementTree.Element,
+            parent_element: xml.etree.ElementTree.Element, column_name: str) -> None:
+        """Add a value to to key, column name, to the given dictionary source from xml_element
+
+        Parameters:
+        dictionary (dict): The dictionary to add the value to
+        xml_element (xml.etree.ElementTree.Element): The source XML element for the current row
+        parent_element (xml.etree.ElementTree.Element): The parent element of the source element
+        column_name (str): The name of the key/column to add to the dictionary
+
+        Returns:
+        None
+        """
+        if xml_element is None:
+            dictionary[column_name] = None
+            xml_content_dump = ""
+
+            for child in parent_element:
+                xml_content_dump += (
+                    f"<{child.tag} {{attribs = {child.attrib}}}>{child.text}</{child.tag}>\n"
+                )
+
+            logging.debug("XML content with undefined %s\n%s", column_name, xml_content_dump)
+        elif isinstance(xml_element, xml.etree.ElementTree.Element):
+            dictionary[column_name] = xml_element.text
+
+    def add_values_to_dictionary(self, dictionary: dict, xpath_pattern_key_list: list,
+                                 parent_element: xml.etree.ElementTree.Element) -> None:
+        """Add values to the given dictionary given the input list of xpath_patterns and target keys
+
+        Parameters:
+        dictionary (dict): The dictionary to add the entries to
+        xpath_pattern_key_list (list): A list of tuples of XPath patterns and associated key names
+        parent_element (xml.etree.ElementTree.Element): The parent XML element containing the data
+
+        Returns:
+        None
+        """
+        for target_key, xpath_pattern in xpath_pattern_key_list:
+            self.add_value_to_dictionary_from_xml_with_null_handling(
+                dictionary=dictionary,
+                xml_element=parent_element.find(xpath_pattern),
+                parent_element=parent_element,
+                column_name=target_key
+            )
 
     def extract_mod_list(self) -> list:
         """Extract the list of mods installed in the save game
@@ -77,7 +136,6 @@ class Save:
 
         return mod_list
 
-
     def extract_pawn_data(self) -> list:
         """Return a list of dictionaries containing pawn data
 
@@ -93,13 +151,20 @@ class Save:
         for element in pawn_data_elements:
             current_pawn = {
                 "pawn_id": element.find(".//pawnData/pawn").text,
-                "pawn_name_first": element.find(".//pawnData/name/first").text,
-                "pawn_name_nick": element.find(".//pawnData/name/nick").text,
-                "pawn_name_last": element.find(".//pawnData/name/last").text,
-                "pawn_biological_age": element.find(".//pawnData/age").text,
-                "pawn_chronological_age": element.find(".//pawnData/chronologicalAge").text,
-                "pawn_ambient_temperature": element.find(".//surroundings/temperature").text,
             }
+            xpath_pattern_key_list = [
+                ("pawn_name_nick", ".//pawnData/name/nick"),
+                ("pawn_name_last", ".//pawnData/name/last"),
+                ("pawn_biological_age", ".//pawnData/age"),
+                ("pawn_chronological_age", ".//pawnData/chronologicalAge"),
+                ("pawn_ambient_temperature", ".//surroundings/temperature"),
+                ("pawn_name_first", ".//pawnData/name/first"),
+            ]
+            self.add_values_to_dictionary(
+                dictionary=current_pawn,
+                xpath_pattern_key_list=xpath_pattern_key_list,
+                parent_element=element
+            )
             current_pawn["pawn_name_full"] = (
                 f"{current_pawn['pawn_name_first']} "
                 f"\"{current_pawn['pawn_name_nick']}\" "
@@ -108,7 +173,6 @@ class Save:
             pawn_data.append(current_pawn)
 
         return pawn_data
-
 
     def extract_plant_data(self) -> list:
         """Return a list of dictionaries containing plant data
@@ -126,16 +190,22 @@ class Save:
         for element in xml_elements:
             current_element_data = {
                 "plant_id": element.find(".//id").text,
-                "plant_definition": element.find(".//def").text,
-                "plant_map_id": element.find(".//map").text,
-                "plant_position": element.find(".//pos").text,
-                "plant_growth": element.find(".//growth").text,
-                "plant_age": element.find(".//age").text,
             }
+            xpath_pattern_key_list = [
+                ("plant_definition", ".//def"),
+                ("plant_map_id", ".//map"),
+                ("plant_position", ".//pos"),
+                ("plant_growth", ".//growth"),
+                ("plant_age", ".//age"),
+            ]
+            self.add_values_to_dictionary(
+                dictionary=current_element_data,
+                xpath_pattern_key_list=xpath_pattern_key_list,
+                parent_element=element
+            )
             plant_data.append(current_element_data)
 
         return plant_data
-
 
     def extract_weather_data(self) -> dict:
         """Return the weather data for the current map
@@ -158,7 +228,6 @@ class Save:
 
         return weather_data_list
 
-
     def generate_dataframes(self) -> None:
         """Generate pandas DataFrames for each dataset
 
@@ -169,11 +238,11 @@ class Save:
         None
         """
         # Validate the input list length
-        assert 1 <= len(self.data.datasets) <= 100
+        assert 1 <= len(self.data.dataset) <= 100
 
-        logging.debug("Generating pandas DataFrames for %d datasets", len(self.data.datasets))
+        logging.debug("Generating pandas DataFrames for %d datasets", len(self.data.dataset))
 
-        for dataset_name, dataset in self.data.datasets.items():
+        for dataset_name, dataset in self.data.dataset.items():
             # Validate the input dictionary and keys
             assert isinstance(dataset, dict)
             assert isinstance(dataset_name, str)
@@ -182,30 +251,33 @@ class Save:
             # Generate the pandas dataframe from the list of dictionaries in dictionary_list
             dataset.dataframe = pandas.DataFrame(dataset.dictionary_list)
 
+            # Add a time dimension for in-game time based on ticks passed
+            dataset.dataframe["time_ticks"] = self.data.game_time_ticks
 
-    def reduce_xml_data(self) -> None:
+    def reduce_xml_data(self) -> int:
         """Remove unnecessary information from the XML tree using a list of XPath patterns
 
         Parameters:
         None
 
         Returns:
-        None
+        int: The number of elements removed
         """
+        total_elements_removed_count = 0
 
         for search_pattern in self.data.xml_elements_remove_list:
-            logging.debug("Removing XML elements matching search pattern: %s", search_pattern)
-            self.remove_matching_elements(search_pattern=search_pattern)
+            total_elements_removed_count += self.remove_matching_elements(search_pattern)
 
+        return total_elements_removed_count
 
-    def remove_matching_elements(self, search_pattern: str) -> None:
+    def remove_matching_elements(self, search_pattern: str) -> int:
         """Remove XML elements matching the given search pattern
 
         Parameters:
         search_pattern (str): The XPath search pattern to use to find matching elements in the tree
 
         Returns:
-        None
+        int: The number of elements removed
         """
         elements_removed_count = 0
         sentry = True
@@ -214,17 +286,12 @@ class Save:
             element = self.data.root.find(search_pattern)
             starting_element_removed_count = elements_removed_count
 
-            if element is None:
-                logging.debug("Element matching pattern (%s) not found", search_pattern)
-            else:
-                logging.debug("Element matching pattern found: %s; Targeting parent element",
-                    element.tag)
+            if element is not None:
                 parent_element_search_pattern = f"{search_pattern}/.."
                 parent = self.data.root.find(parent_element_search_pattern)
                 assert isinstance(parent, xml.etree.ElementTree.Element)
 
                 if parent is not None:
-                    logging.debug("Parent element found. Proceeding with removal of child element")
                     parent.remove(element)
                     elements_removed_count += 1
 
@@ -232,8 +299,7 @@ class Save:
             if elements_removed_count == starting_element_removed_count:
                 sentry = False
 
-        logging.debug("%d elements removed total", elements_removed_count)
-
+        return elements_removed_count
 
     def transform_plant_dataframe(self) -> None:
         """Transform the plants DataFrame by adding calculated columns
@@ -245,10 +311,137 @@ class Save:
         None
         """
         # Create a column by converting plant_growth to a float and multiplying it by 100
-        dataframe = self.data.datasets.plant.dataframe
+        dataframe = self.data.dataset.plant.dataframe
         dataframe["plant_growth_percentage"] = dataframe["plant_growth"].astype(float) * 100
 
         # Bin the percentage values in ranges for visualization and summarized reporting
         bins = range(0, 101, 5)
-        dataframe["plant_growth_bin"] = pandas.cut(dataframe["plant_growth_percentage"], bins,
-            labels=bins[1:])
+        dataframe["plant_growth_bin"] = pandas.cut(dataframe["plant_growth_percentage"],
+                                                   bins, labels=bins[1:])
+
+
+class SaveSeries:
+    """Manage the ELT process for a series of RimWorld game save files"""
+    def __init__(self, save_dir_path: pathlib.Path, save_file_regex_pattern: str) -> None:
+        """Initialize the SaveSeries object
+
+        Parameters:
+        save_dir_path (pathlib.Path): The directory containing the RimWorld save files
+        save_file_regex_pattern (str): A regex pattern matching a series of associated save files
+
+        Returns:
+        None
+        """
+        self.dictionary = {}
+        logging.debug("Initializing SaveSeries object with arguments:\n\tsave_dir_path = %s\n\t\
+            regex = %s", save_dir_path, save_file_regex_pattern)
+        self.save_dir_path = save_dir_path
+        self.save_file_regex_pattern = save_file_regex_pattern
+        self.scan_save_file_dir()
+        self.load_save_data()
+        self.dataset = Bunch()
+        self.aggregate_dataframes()
+
+    def aggregate_dataframes(self) -> None:
+        """Combine individual save datasets and group using a time dimension
+
+        Parameters:
+        None
+
+        Returns:
+        None
+        """
+        # Get only the keys (names of datasets) from one of the stored save datasets
+        dataset_names = self.dictionary[list(self.dictionary.keys())[0]]["save"].data.dataset.keys()
+        logging.debug("Aggregating datasets: %s", dataset_names)
+
+        for dataset_name in dataset_names:
+            logging.debug("Aggregating snapshots of %s data", dataset_name)
+            frame_combine_list = []
+
+            for save_file_name, save_file_data in self.dictionary.items():
+                logging.debug("Adding data from save file, %s, to %s data aggregation:\n%s",
+                              save_file_name, dataset_name, save_file_data["path"])
+                current_dataframe = save_file_data["save"].data.dataset[dataset_name].dataframe
+                frame_combine_list.append(current_dataframe)
+
+            logging.debug("Concatenating pandas dataframes into singular frame for %s data",
+                          dataset_name)
+            self.dataset[dataset_name] = Bunch(dataframe=pandas.concat(frame_combine_list))
+            logging.info("Pandas dataframe combination operation complete for %s data",
+                         dataset_name)
+
+    @property
+    def latest_save(self) -> Save:
+        """Return the chronologically latest save by reading the in-game time of each save
+
+        Parameters:
+        None
+
+        Returns:
+        Save: The Save object containing the latest sava data
+        """
+        max_time_value = 0
+        latest_save = None
+        latest_save_name = None
+
+        for save_name, save in self.dictionary.items():
+            current_time_value = save["save"].data.game_time_ticks
+            logging.debug("Checking in-game time for save: %s", save_name)
+            logging.debug("save.data.game_time_ticks > max_time_ticks_value == %s",
+                          current_time_value > max_time_value)
+
+            if current_time_value > max_time_value:
+                logging.debug("New max time ticks value identified = %d", current_time_value)
+                max_time_value = current_time_value
+                latest_save = save
+                latest_save_name = save_name
+
+        logging.info("Identified save, %s, as the latest save, with %d ticks", latest_save_name,
+                     max_time_value)
+
+        return latest_save
+
+    def load_save_data(self) -> None:
+        """Iterate through the save file list and store each in a Save object
+
+        Parameters:
+        None
+
+        Returns:
+        None
+        """
+        for save_file_base_name, save_file_dictionary in self.dictionary.items():
+            logging.debug("Loading data for save file into series: %s", save_file_base_name)
+            save_file_dictionary["save"] = Save(path_to_save_file=save_file_dictionary["path"])
+            logging.debug("Finished loading data for save file into series: %s",
+                          save_file_base_name)
+
+    def scan_save_file_dir(self) -> None:
+        """Populate the dictionary property for saves files matching save_file_regex_pattern
+
+        Parameters:
+        None
+
+        Returns:
+        None
+        """
+        saves_all = glob.glob(f"{self.save_dir_path}/*.rws")
+        logging.debug("saves_all = %s", saves_all)
+        logging.debug("Using regex pattern for search = %s", self.save_file_regex_pattern)
+
+        for save_path in saves_all:
+            if re.match(self.save_file_regex_pattern, os.path.basename(save_path)):
+                logging.debug("Match found in file base name: %s", os.path.basename(save_path))
+            else:
+                logging.debug("Match NOT found in file base name: %s", os.path.basename(save_path))
+
+        pattern = self.save_file_regex_pattern
+        saves_filtered = [
+            save_path for save_path in saves_all if re.match(pattern, os.path.basename(save_path))
+        ]
+        logging.debug("saves_filtered = %s", saves_filtered)
+
+        for save_path in saves_filtered:
+            base_name = os.path.basename(save_path)
+            self.dictionary[base_name] = {"path": save_path}

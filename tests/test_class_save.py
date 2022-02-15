@@ -16,7 +16,7 @@ def test_class_save_pawn(config_data: dict) -> None:
     None
     """
     save = Save(config_data["rimworld_save_file_path"])
-    pawn_data = save.data.datasets.pawn.dictionary_list
+    pawn_data = save.data.dataset.pawn.dictionary_list
 
     # Test the pawn property's data type
     assert isinstance(pawn_data, list)
@@ -38,13 +38,13 @@ def test_class_save_root(config_data: dict) -> None:
     Returns:
     None
     """
-    save = Save(config_data["rimworld_save_file_path"]).data.root
+    root = Save(config_data["rimworld_save_file_path"], preserve_root=True).data.root
 
     # Test the Save class's root property data type
-    assert isinstance(save, xml.etree.ElementTree.Element)
+    assert isinstance(root, xml.etree.ElementTree.Element)
 
     # Validate that the XML tree contains the pawnData element
-    element = save.find(".//pawnData")
+    element = root.find(".//pawnData")
 
     # Validate the sample element's data type
     assert isinstance(element, xml.etree.ElementTree.Element)
@@ -52,3 +52,70 @@ def test_class_save_root(config_data: dict) -> None:
 
     for index, child in enumerate(element):
         logging.debug("child element #%d data = %s, %s", index, child.tag, child.text)
+
+
+def test_game_time_ticks(config_data: dict) -> None:
+    """Test the Save class's game_time_ticks property
+
+    Parameters:
+    config_data (dict): The project configuration data as a dictionary (fixture)
+
+    Returns:
+    None
+    """
+    game_time_ticks = Save(config_data["rimworld_save_file_path"]).data.game_time_ticks
+    logging.debug("game_time_ticks = %d", game_time_ticks)
+    assert isinstance(game_time_ticks, int)
+    assert game_time_ticks == 8337
+
+
+def test_null_handling(config_data: dict) -> None:
+    """Test the Save class's add_value_to_dictionary_from_xml_with_null_handling function
+
+    Parameters:
+    config_data (dict): The project configuration data as a dictionary (fixture)
+
+    Returns:
+    None
+    """
+    child_element_tag = "test_child"
+    parent_element_tag = "test_parent"
+    parent_element = xml.etree.ElementTree.Element(parent_element_tag)
+    child_element = xml.etree.ElementTree.SubElement(parent_element, child_element_tag)
+    xml.etree.ElementTree.SubElement(parent_element, "another_child")
+    child_element_text = "99.99999"
+    child_element.text = child_element_text
+    target_key = "test_key"
+
+    # Test adding a plant's growth value when it should be present
+    assert isinstance(child_element, xml.etree.ElementTree.Element)
+    assert child_element.tag == child_element_tag
+    test_dictionary = {}
+    assert isinstance(test_dictionary, dict)
+    assert target_key not in test_dictionary
+    save = Save(path_to_save_file=config_data["rimworld_save_file_path"])
+    save.add_value_to_dictionary_from_xml_with_null_handling(
+        dictionary=test_dictionary,
+        xml_element=child_element,
+        parent_element=parent_element,
+        column_name=target_key
+    )
+    assert target_key in test_dictionary
+    assert isinstance(test_dictionary[target_key], str)
+    assert len(test_dictionary[target_key]) > 2
+    assert test_dictionary[target_key] == child_element_text
+
+    # Test again when the target element is missing
+    test_dictionary = {}
+    parent_element.remove(child_element)
+    child_element = parent_element.find(f".//{child_element_tag}")
+    assert isinstance(test_dictionary, dict)
+    assert target_key not in test_dictionary
+    save.add_value_to_dictionary_from_xml_with_null_handling(
+        dictionary=test_dictionary,
+        xml_element=child_element,
+        parent_element=parent_element,
+        column_name=target_key
+    )
+    assert target_key in test_dictionary
+    assert test_dictionary[target_key] is None

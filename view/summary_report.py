@@ -2,13 +2,14 @@
 
 import pathlib
 
+import bunch
 import dominate
 from dominate.util import raw
 from dominate.tags import attr, div, h1, h2, h3, li, link, p, ul
 import pandas
 import plotly.express
 
-from save import Save
+from save import SaveSeries
 
 
 def get_environment_section(pawn_data: list, weather_data: dict) -> None:
@@ -41,7 +42,7 @@ def get_environment_section(pawn_data: list, weather_data: dict) -> None:
 
 
 def get_histogram_html(dataframe: pandas.core.frame.DataFrame, x_axis_field: str,
-    labels: dict) -> str:
+                       labels: dict) -> str:
     """Return the HTML for a histogram chart
 
     Parameters:
@@ -58,17 +59,23 @@ def get_histogram_html(dataframe: pandas.core.frame.DataFrame, x_axis_field: str
     return fig.to_html(full_html=False)
 
 
-def generate_summary_report(path_to_save_file: pathlib.Path, output_path: pathlib.Path) -> None:
+def generate_summary_report(save_dir_path: pathlib.Path, file_regex_pattern: str,
+                            output_path: pathlib.Path) -> None:
     """Generate an HTML report with a list of the installed mods found
 
     Parameters:
-    path_to_save_file (pathlib.Path): The path to the save file from which to source the data
+    save_dir_path (pathlib.Path): The directory where the series of RimWorld save files is stored
+    file_regex_pattern (str): The regex pattern used to select a set of matching RimWorld save files
     output_path (pathlib.Path): The file path where the report should be created
 
     Returns:
     None
     """
-    save = Save(path_to_save_file=path_to_save_file)
+    series = SaveSeries(
+        save_dir_path=save_dir_path,
+        save_file_regex_pattern=file_regex_pattern
+    )
+    save = series.latest_save["save"]
     doc = dominate.document(title='RimWorld Save Game Summary Report')
 
     with doc.head:
@@ -82,10 +89,10 @@ def generate_summary_report(path_to_save_file: pathlib.Path, output_path: pathli
             p(save.data.game_version)
             h2("File Size")
             p(f"{save.data.file_size} bytes")
-            h2(f"Installed Mods ({len(save.data.datasets.mod.dictionary_list)})")
+            h2(f"Installed Mods ({len(save.data.dataset.mod.dictionary_list)})")
 
             with ul():
-                for mod in save.data.datasets.mod.dictionary_list:
+                for mod in save.data.dataset.mod.dictionary_list:
                     mod_list_item_content = mod["mod_name"]
                     mod_steam_id = mod["mod_steam_id"]
 
@@ -94,48 +101,100 @@ def generate_summary_report(path_to_save_file: pathlib.Path, output_path: pathli
 
                     li(mod_list_item_content)
 
-            h2(f"Colonists ({len(save.data.datasets.pawn['dictionary_list'])})")
+            h2(f"Colonists ({len(save.data.dataset.pawn['dictionary_list'])})")
 
             with ul():
-                for pawn in save.data.datasets.pawn.dictionary_list:
+                for pawn in save.data.dataset.pawn.dictionary_list:
                     li(f"{pawn['pawn_name_full']}, age {pawn['pawn_biological_age']}")
 
-            h2(f"Plants ({len(save.data.datasets.plant['dictionary_list'])})")
-
-            with ul():
-                displayed_plant_types = []
-
-                for plant in save.data.datasets.plant.dictionary_list:
-                    if plant['plant_definition'] in displayed_plant_types:
-                        continue
-
-                    displayed_plant_types.append(plant['plant_definition'])
-                    plant_information = (
-                        f"{plant['plant_definition']} - "
-                        f"{plant['plant_growth']} - "
-                        f"{plant['plant_position']}"
-                    )
-                    li(plant_information)
-
-                    if len(displayed_plant_types) >= 20:
-                        break
-
-            plant_dataframe = save.data.datasets.plant.dataframe
-            p(raw(plant_dataframe.head().to_html()))
-            p(raw(plant_dataframe.tail().to_html()))
-            p(raw(plant_dataframe.describe().to_html()))
-            p(raw(plant_dataframe["plant_definition"].value_counts().to_frame().to_html()))
-            raw(
-                get_histogram_html(
-                    dataframe=plant_dataframe,
-                    x_axis_field="plant_growth_bin",
-                    labels={"plant_growth_bin": "Plant growth (%)"}
-                )
+            get_plant_section(
+                current_plant_dataset=save.data.dataset.plant,
+                series_plant_dataset=series.dataset.plant
             )
             get_environment_section(
-                pawn_data=save.data.datasets.pawn.dictionary_list,
-                weather_data=save.data.datasets.weather.dictionary_list[0]
+                pawn_data=save.data.dataset.pawn.dictionary_list,
+                weather_data=save.data.dataset.weather.dictionary_list[0]
             )
 
     with open(output_path, "w", encoding="utf_8") as output_file:
         output_file.write(str(doc))
+
+
+def get_plant_section(current_plant_dataset: bunch.Bunch, series_plant_dataset: bunch.Bunch)\
+        -> None:
+    """Build the plant section of the report
+
+    Parameters:
+    current_plant_dataframe (bunch.Bunch): The plant dataset for the current save
+    series_plant_dataframe (bunch.Bunch): The plant dataset for all saves in the series
+
+    Returns:
+    None
+    """
+
+    h2(f"Plants ({len(current_plant_dataset.dictionary_list)})")
+
+    with ul():
+        displayed_plant_types = []
+
+        for plant in current_plant_dataset.dictionary_list:
+            if plant['plant_definition'] in displayed_plant_types:
+                continue
+
+            displayed_plant_types.append(plant['plant_definition'])
+            plant_information = (
+                f"{plant['plant_definition']} - "
+                f"{plant['plant_growth']} - "
+                f"{plant['plant_position']}"
+            )
+            li(plant_information)
+
+            if len(displayed_plant_types) >= 20:
+                break
+
+    plant_dataframe = current_plant_dataset.dataframe
+    p(raw(plant_dataframe.head().to_html()))
+    p(raw(plant_dataframe.tail().to_html()))
+    p(raw(plant_dataframe.describe().to_html()))
+    p(raw(plant_dataframe["plant_definition"].value_counts().to_frame().to_html()))
+    raw(
+        get_histogram_html(
+            dataframe=plant_dataframe,
+            x_axis_field="plant_growth_bin",
+            labels={"plant_growth_bin": "Plant growth (%)"}
+        )
+    )
+    p(raw(series_plant_dataset.dataframe.head().to_html()))
+    p(raw(series_plant_dataset.dataframe.tail().to_html()))
+    p(raw(series_plant_dataset.dataframe.describe().to_html()))
+
+    # Plant chart #1 - Total population
+    plant_agg_df = series_plant_dataset.dataframe\
+        .groupby(["time_ticks"])\
+        .agg({"plant_id": "count"})
+    fig = plotly.express.line(
+        plant_agg_df,
+        title="Plant population over time",
+        markers=True,
+        labels={"time_ticks": "Time", "plant_id": "Plant population"}
+    )
+    raw(fig.to_html(full_html=False))
+
+    # Plant chart #2 - By species
+    plant_agg_by_species_df = series_plant_dataset.dataframe[
+        ["time_ticks", "plant_definition", "plant_id"]
+    ]
+    plant_agg_by_species_df = plant_agg_by_species_df\
+        .groupby(["time_ticks", "plant_definition"])\
+        .agg({"plant_id": "count"})\
+        .reset_index()
+    fig = plotly.express.line(
+        plant_agg_by_species_df,
+        x="time_ticks",
+        y="plant_id",
+        title="Plant population by species over time",
+        markers=True,
+        color="plant_definition",
+        labels={"time_ticks": "Time", "plant_id": "Plant population"}
+    )
+    raw(fig.to_html(full_html=False))

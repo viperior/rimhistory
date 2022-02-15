@@ -1,4 +1,6 @@
 {
     "processed_save_file_path": "data/processed.rws",
-    "rimworld_save_file_path": "data/sample_rimworld_save.rws"
+    "rimworld_save_file_dir": "data",
+    "rimworld_save_file_path": "data/sample_rimworld_save.rws",
+    "rimworld_save_file_series_pattern": "sample_rimworld_save"
 }
