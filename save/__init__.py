@@ -436,9 +436,9 @@ class SaveSeries:
             else:
                 logging.debug("Match NOT found in file base name: %s", os.path.basename(save_path))
 
+        pattern = self.save_file_regex_pattern
         saves_filtered = [
-            save_path for save_path in saves_all
-                if re.match(self.save_file_regex_pattern, os.path.basename(save_path))
+            save_path for save_path in saves_all if re.match(pattern, os.path.basename(save_path))
         ]
         logging.debug("saves_filtered = %s", saves_filtered)
 
