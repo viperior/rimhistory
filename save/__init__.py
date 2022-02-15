@@ -13,8 +13,8 @@ import pandas
 
 class Save:
     """Extract the XML data from a RimWorld save file and return the elements"""
-    def __init__(self, path_to_save_file: pathlib.Path, reduce_xml: bool=False,
-        xml_remove_list: list=None, preserve_root: bool=False) -> None:
+    def __init__(self, path_to_save_file: pathlib.Path, reduce_xml: bool = False,
+                 xml_remove_list: list = None, preserve_root: bool = False) -> None:
         """Initialize the Save object by parsing the root XML object using ElementTree
 
         Parameters:
@@ -35,8 +35,9 @@ class Save:
         if reduce_xml:
             self.data.xml_elements_remove_list = xml_remove_list
             elements_removed = self.reduce_xml_data()
-            logging.info("Removed %d XML elements from save file: %s", elements_removed,
-                self.data.path)
+            logging.info("Removed %d XML elements from save file: %s",
+                         elements_removed,
+                         self.data.path)
 
         # Extract singular data points
         self.data.file_size = os.path.getsize(self.data.path)
@@ -45,10 +46,10 @@ class Save:
 
         # Extract datasets
         self.data.dataset = Bunch(
-            mod = Bunch(dictionary_list = self.extract_mod_list()),
-            pawn = Bunch(dictionary_list = self.extract_pawn_data()),
-            plant = Bunch(dictionary_list = self.extract_plant_data()),
-            weather = Bunch(dictionary_list = self.extract_weather_data()),
+            mod=Bunch(dictionary_list=self.extract_mod_list()),
+            pawn=Bunch(dictionary_list=self.extract_pawn_data()),
+            plant=Bunch(dictionary_list=self.extract_plant_data()),
+            weather=Bunch(dictionary_list=self.extract_weather_data()),
         )
 
         # Delete the root object to free up memory
@@ -63,11 +64,10 @@ class Save:
 
         logging.info("Finished creating new Save object from file: %s", self.data.path)
 
-
     @staticmethod
-    def add_value_to_dictionary_from_xml_with_null_handling(dictionary: dict,
-        xml_element: xml.etree.ElementTree.Element, parent_element: xml.etree.ElementTree.Element,
-        column_name: str) -> None:
+    def add_value_to_dictionary_from_xml_with_null_handling(
+            dictionary: dict, xml_element: xml.etree.ElementTree.Element,
+            parent_element: xml.etree.ElementTree.Element, column_name: str) -> None:
         """Add a value to to key, column name, to the given dictionary source from xml_element
 
         Parameters:
@@ -92,9 +92,8 @@ class Save:
         elif isinstance(xml_element, xml.etree.ElementTree.Element):
             dictionary[column_name] = xml_element.text
 
-
     def add_values_to_dictionary(self, dictionary: dict, xpath_pattern_key_list: list,
-        parent_element: xml.etree.ElementTree.Element) -> None:
+                                 parent_element: xml.etree.ElementTree.Element) -> None:
         """Add values to the given dictionary given the input list of xpath_patterns and target keys
 
         Parameters:
@@ -112,7 +111,6 @@ class Save:
                 parent_element=parent_element,
                 column_name=target_key
             )
-
 
     def extract_mod_list(self) -> list:
         """Extract the list of mods installed in the save game
@@ -137,7 +135,6 @@ class Save:
             mod_list.append(mod_info)
 
         return mod_list
-
 
     def extract_pawn_data(self) -> list:
         """Return a list of dictionaries containing pawn data
@@ -177,7 +174,6 @@ class Save:
 
         return pawn_data
 
-
     def extract_plant_data(self) -> list:
         """Return a list of dictionaries containing plant data
 
@@ -211,7 +207,6 @@ class Save:
 
         return plant_data
 
-
     def extract_weather_data(self) -> dict:
         """Return the weather data for the current map
 
@@ -232,7 +227,6 @@ class Save:
         weather_data_list = [weather_data]
 
         return weather_data_list
-
 
     def generate_dataframes(self) -> None:
         """Generate pandas DataFrames for each dataset
@@ -260,7 +254,6 @@ class Save:
             # Add a time dimension for in-game time based on ticks passed
             dataset.dataframe["time_ticks"] = self.data.game_time_ticks
 
-
     def reduce_xml_data(self) -> int:
         """Remove unnecessary information from the XML tree using a list of XPath patterns
 
@@ -276,7 +269,6 @@ class Save:
             total_elements_removed_count += self.remove_matching_elements(search_pattern)
 
         return total_elements_removed_count
-
 
     def remove_matching_elements(self, search_pattern: str) -> int:
         """Remove XML elements matching the given search pattern
@@ -309,7 +301,6 @@ class Save:
 
         return elements_removed_count
 
-
     def transform_plant_dataframe(self) -> None:
         """Transform the plants DataFrame by adding calculated columns
 
@@ -325,8 +316,8 @@ class Save:
 
         # Bin the percentage values in ranges for visualization and summarized reporting
         bins = range(0, 101, 5)
-        dataframe["plant_growth_bin"] = pandas.cut(dataframe["plant_growth_percentage"], bins,
-            labels=bins[1:])
+        dataframe["plant_growth_bin"] = pandas.cut(dataframe["plant_growth_percentage"],
+                                                   bins, labels=bins[1:])
 
 
 class SaveSeries:
@@ -351,7 +342,6 @@ class SaveSeries:
         self.dataset = Bunch()
         self.aggregate_dataframes()
 
-
     def aggregate_dataframes(self) -> None:
         """Combine individual save datasets and group using a time dimension
 
@@ -371,17 +361,15 @@ class SaveSeries:
 
             for save_file_name, save_file_data in self.dictionary.items():
                 logging.debug("Adding data from save file, %s, to %s data aggregation:\n%s",
-                    save_file_name, dataset_name, save_file_data["path"])
-                frame_combine_list.append(
-                    save_file_data["save"].data.dataset[dataset_name].dataframe
-                )
+                              save_file_name, dataset_name, save_file_data["path"])
+                current_dataframe = save_file_data["save"].data.dataset[dataset_name].dataframe
+                frame_combine_list.append(current_dataframe)
 
             logging.debug("Concatenating pandas dataframes into singular frame for %s data",
-                dataset_name)
+                          dataset_name)
             self.dataset[dataset_name] = Bunch(dataframe=pandas.concat(frame_combine_list))
             logging.info("Pandas dataframe combination operation complete for %s data",
-                dataset_name)
-
+                         dataset_name)
 
     @property
     def latest_save(self) -> Save:
@@ -401,7 +389,7 @@ class SaveSeries:
             current_time_value = save["save"].data.game_time_ticks
             logging.debug("Checking in-game time for save: %s", save_name)
             logging.debug("save.data.game_time_ticks > max_time_ticks_value == %s",
-                current_time_value > max_time_value)
+                          current_time_value > max_time_value)
 
             if current_time_value > max_time_value:
                 logging.debug("New max time ticks value identified = %d", current_time_value)
@@ -410,10 +398,9 @@ class SaveSeries:
                 latest_save_name = save_name
 
         logging.info("Identified save, %s, as the latest save, with %d ticks", latest_save_name,
-            max_time_value)
+                     max_time_value)
 
         return latest_save
-
 
     def load_save_data(self) -> None:
         """Iterate through the save file list and store each in a Save object
@@ -428,8 +415,7 @@ class SaveSeries:
             logging.debug("Loading data for save file into series: %s", save_file_base_name)
             save_file_dictionary["save"] = Save(path_to_save_file=save_file_dictionary["path"])
             logging.debug("Finished loading data for save file into series: %s",
-                save_file_base_name)
-
+                          save_file_base_name)
 
     def scan_save_file_dir(self) -> None:
         """Populate the dictionary property for saves files matching save_file_regex_pattern
@@ -451,7 +437,7 @@ class SaveSeries:
                 logging.debug("Match NOT found in file base name: %s", os.path.basename(save_path))
 
         saves_filtered = [
-            save_path for save_path in saves_all\
+            save_path for save_path in saves_all
                 if re.match(self.save_file_regex_pattern, os.path.basename(save_path))
         ]
         logging.debug("saves_filtered = %s", saves_filtered)

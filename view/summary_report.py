@@ -42,7 +42,7 @@ def get_environment_section(pawn_data: list, weather_data: dict) -> None:
 
 
 def get_histogram_html(dataframe: pandas.core.frame.DataFrame, x_axis_field: str,
-    labels: dict) -> str:
+                       labels: dict) -> str:
     """Return the HTML for a histogram chart
 
     Parameters:
@@ -60,7 +60,7 @@ def get_histogram_html(dataframe: pandas.core.frame.DataFrame, x_axis_field: str
 
 
 def generate_summary_report(save_dir_path: pathlib.Path, file_regex_pattern: str,
-    output_path: pathlib.Path) -> None:
+                            output_path: pathlib.Path) -> None:
     """Generate an HTML report with a list of the installed mods found
 
     Parameters:
@@ -108,8 +108,8 @@ def generate_summary_report(save_dir_path: pathlib.Path, file_regex_pattern: str
                     li(f"{pawn['pawn_name_full']}, age {pawn['pawn_biological_age']}")
 
             get_plant_section(
-                current_plant_dataset = save.data.dataset.plant,
-                series_plant_dataset = series.dataset.plant
+                current_plant_dataset=save.data.dataset.plant,
+                series_plant_dataset=series.dataset.plant
             )
             get_environment_section(
                 pawn_data=save.data.dataset.pawn.dictionary_list,
@@ -119,8 +119,9 @@ def generate_summary_report(save_dir_path: pathlib.Path, file_regex_pattern: str
     with open(output_path, "w", encoding="utf_8") as output_file:
         output_file.write(str(doc))
 
+
 def get_plant_section(current_plant_dataset: bunch.Bunch, series_plant_dataset: bunch.Bunch)\
-    -> None:
+        -> None:
     """Build the plant section of the report
 
     Parameters:

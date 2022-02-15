@@ -22,8 +22,8 @@ def test_mod_list(config_data: dict) -> None:
 
     expected_mod_attributes = ["mod_id", "mod_name", "mod_steam_id"]
     sample_mod = mod_list[0]
-    logging.debug("Checking sample mod for expected attributes\nExpected attributes = %s\nSample "\
-        "mod:\n%s", expected_mod_attributes, json.dumps(sample_mod, indent=4))
+    logging.debug("Checking sample mod for expected attributes\nExpected attributes = %s\nSample "
+                  "mod:\n%s", expected_mod_attributes, json.dumps(sample_mod, indent=4))
 
     for attribute in expected_mod_attributes:
         assert attribute in sample_mod.keys()

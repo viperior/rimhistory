@@ -64,11 +64,12 @@ def test_aggregate_dataframes(tmp_path: pathlib.Path) -> None:
         shutil.copyfile(src=sample_save_file_path, dst=file_path)
 
     series = SaveSeries(save_dir_path=tmp_path, save_file_regex_pattern=r"mysave\s\d{1,10}")
-    expected_count = len(Save(path_to_save_file=sample_save_file_path).data.dataset.plant.dataframe\
-        .index) * test_file_count
+    sample_save = Save(path_to_save_file=sample_save_file_path)
+    single_plant_dataframe = sample_save.data.dataset.plant.dataframe
+    expected_count = len(single_plant_dataframe.index) * test_file_count
     actual_count = len(series.dataset.plant.dataframe.index)
     logging.debug("Dataframe aggregation test result:\nExpected count: %d\nActual count: %d",
-        expected_count, actual_count)
+                  expected_count, actual_count)
 
     assert actual_count == expected_count
 
@@ -78,7 +79,7 @@ def test_aggregate_dataframes(tmp_path: pathlib.Path) -> None:
     get_test_input_data_sample_save_files()
 )
 def test_scan_save_file_dir(file_name_list: list, regex_pattern: str, expected_match_count: int,
-    tmp_path: pathlib.Path) -> None:
+                            tmp_path: pathlib.Path) -> None:
     """Test the scan_save_file_dir function of the SaveSeries class
 
     Parameters:
@@ -113,6 +114,6 @@ def test_scan_save_file_dir(file_name_list: list, regex_pattern: str, expected_m
     sample_save_key = list(series.dictionary.keys())[2]
     sample_game_version = series.dictionary[sample_save_key]["save"].data.game_version
     logging.debug("Sample property from one of the processed save files = game_version = %s",
-        sample_game_version)
+                  sample_game_version)
     assert isinstance(sample_game_version, str)
     assert sample_game_version == "1.3.3200 rev726"
