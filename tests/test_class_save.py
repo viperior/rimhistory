@@ -38,13 +38,13 @@ def test_class_save_root(config_data: dict) -> None:
     Returns:
     None
     """
-    save = Save(config_data["rimworld_save_file_path"]).data.root
+    root = Save(config_data["rimworld_save_file_path"], preserve_root=True).data.root
 
     # Test the Save class's root property data type
-    assert isinstance(save, xml.etree.ElementTree.Element)
+    assert isinstance(root, xml.etree.ElementTree.Element)
 
     # Validate that the XML tree contains the pawnData element
-    element = save.find(".//pawnData")
+    element = root.find(".//pawnData")
 
     # Validate the sample element's data type
     assert isinstance(element, xml.etree.ElementTree.Element)

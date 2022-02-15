@@ -20,7 +20,7 @@ def test_remove_matching_elements(config_data: dict, target_tag: str) -> None:
     """
     save_file_path = config_data["rimworld_save_file_path"]
     remove_element_pattern = f".//{target_tag}"
-    save = Save(path_to_save_file=save_file_path)
+    save = Save(path_to_save_file=save_file_path, preserve_root=True)
     target_element = save.data.root.find(remove_element_pattern)
 
     # Test for the presence of the target element before attempting to remove it

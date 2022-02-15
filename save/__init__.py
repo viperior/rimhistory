@@ -14,11 +14,14 @@ import pandas
 
 class Save:
     """Extract the XML data from a RimWorld save file and return the elements"""
-    def __init__(self, path_to_save_file: pathlib.Path) -> None:
+    def __init__(self, path_to_save_file: pathlib.Path, reduce_xml: bool=False,
+        xml_remove_list: list=None, preserve_root: bool=False) -> None:
         """Initialize the Save object by parsing the root XML object using ElementTree
 
         Parameters:
         path_to_save_file (pathlib.Path): The path to the RimWorld save file to be loaded
+        reduce_xml (bool): A Boolean value to toggle XML reduction
+        xml_remove_list (list): The list of XPath patterns to use to remove XML data
 
         Returns:
         None
@@ -29,11 +32,12 @@ class Save:
         # Parse the XML document and get the root
         self.data.root = xml.etree.ElementTree.parse(self.data.path).getroot()
 
-        # Pre-process the save file by removing extraneous information
-        with open("defaults.json", "r", encoding="utf_8") as defaults_file:
-            defaults_data = json.load(defaults_file)
-
-        self.data.xml_elements_remove_list = defaults_data["xml_elements_remove_list"]
+        # Reduce XML (optional)
+        if reduce_xml:
+            self.data.xml_elements_remove_list = xml_remove_list
+            elements_removed = self.reduce_xml_data()
+            logging.info("Removed %d XML elements from save file: %s", elements_removed,
+                self.data.path)
 
         # Extract singular data points
         self.data.file_size = os.path.getsize(self.data.path)
@@ -49,7 +53,8 @@ class Save:
         )
 
         # Delete the root object to free up memory
-        del self.data.root
+        if not preserve_root:
+            del self.data.root
 
         # Generate pandas DataFrames from each dataset initialized as a list of dictionaries
         self.generate_dataframes()
