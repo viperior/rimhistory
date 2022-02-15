@@ -48,6 +48,9 @@ class Save:
             weather = Bunch(dictionary_list = self.extract_weather_data()),
         )
 
+        # Delete the root object to free up memory
+        del self.data.root
+
         # Generate pandas DataFrames from each dataset initialized as a list of dictionaries
         self.generate_dataframes()
 
