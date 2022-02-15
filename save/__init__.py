@@ -57,6 +57,59 @@ class Save:
         logging.info("Finished creating new Save object from file: %s", self.data.path)
 
 
+    @staticmethod
+    def add_value_to_dictionary_from_xml_with_null_handling(dictionary: dict,
+        xml_element: xml.etree.ElementTree.Element, parent_element: xml.etree.ElementTree.Element,
+        column_name: str) -> None:
+        """Add a value to to key, column name, to the given dictionary source from xml_element
+
+        Parameters:
+        dictionary (dict): The dictionary to add the value to
+        xml_element (xml.etree.ElementTree.Element): The source XML element for the current row
+        parent_element (xml.etree.ElementTree.Element): The parent element of the source element
+        column_name (str): The name of the key/column to add to the dictionary
+
+        Returns:
+        None
+        """
+        if xml_element is None:
+            dictionary[column_name] = None
+            logging.error("Detected entity (%s, %s, %s) with no defined %s:\n%s",
+                parent_element.tag, parent_element.text, parent_element.attrib, column_name,
+                list(parent_element.iter()))
+            xml_content_dump = ""
+
+            for child in parent_element:
+                xml_content_dump += (
+                    f"<{child.tag} {{attribs = {child.attrib}}}>{child.text}</{child.tag}>\n"
+                )
+
+            logging.error("XML content with undefined %s\n%s", column_name, xml_content_dump)
+        elif isinstance(xml_element, xml.etree.ElementTree.Element):
+            dictionary[column_name] = xml_element.text
+
+
+    def add_values_to_dictionary(self, dictionary: dict, xpath_pattern_key_list: list,
+        parent_element: xml.etree.ElementTree.Element) -> None:
+        """Add values to the given dictionary given the input list of xpath_patterns and target keys
+
+        Parameters:
+        dictionary (dict): The dictionary to add the entries to
+        xpath_pattern_key_list (list): A list of tuples of XPath patterns and associated key names
+        parent_element (xml.etree.ElementTree.Element): The parent XML element containing the data
+
+        Returns:
+        None
+        """
+        for target_key, xpath_pattern in xpath_pattern_key_list:
+            self.add_value_to_dictionary_from_xml_with_null_handling(
+                dictionary=dictionary,
+                xml_element=parent_element.find(xpath_pattern),
+                parent_element=parent_element,
+                column_name=target_key
+            )
+
+
     def extract_mod_list(self) -> list:
         """Extract the list of mods installed in the save game
 
@@ -97,29 +150,25 @@ class Save:
         for element in pawn_data_elements:
             current_pawn = {
                 "pawn_id": element.find(".//pawnData/pawn").text,
-                "pawn_name_first": element.find(".//pawnData/name/first").text,
-                "pawn_name_nick": element.find(".//pawnData/name/nick").text,
-                "pawn_name_last": element.find(".//pawnData/name/last").text,
-                "pawn_biological_age": element.find(".//pawnData/age").text,
-                "pawn_chronological_age": element.find(".//pawnData/chronologicalAge").text,
             }
+            xpath_pattern_key_list = [
+                ("pawn_name_nick", ".//pawnData/name/nick"),
+                ("pawn_name_last", ".//pawnData/name/last"),
+                ("pawn_biological_age", ".//pawnData/age"),
+                ("pawn_chronological_age", ".//pawnData/chronologicalAge"),
+                ("pawn_ambient_temperature", ".//surroundings/temperature"),
+                ("pawn_name_first", ".//pawnData/name/first"),
+            ]
+            self.add_values_to_dictionary(
+                dictionary=current_pawn,
+                xpath_pattern_key_list=xpath_pattern_key_list,
+                parent_element=element
+            )
             current_pawn["pawn_name_full"] = (
                 f"{current_pawn['pawn_name_first']} "
                 f"\"{current_pawn['pawn_name_nick']}\" "
                 f"{current_pawn['pawn_name_last']}"
             )
-            pawn_ambient_temperature = element.find(".//surroundings/temperature")
-
-            if pawn_ambient_temperature is None:
-                current_pawn["pawn_ambient_temperature"] = None
-                logging.debug("Detected pawn with no defined ambient temperature:\n%s",
-                    list(element.iter()))
-
-                for child in element:
-                    logging.debug("---\n%s\n%s\n---", child.tag, child.text)
-            elif isinstance(pawn_ambient_temperature, xml.etree.ElementTree.Element):
-                current_pawn["pawn_ambient_temperature"] = pawn_ambient_temperature.text
-
             pawn_data.append(current_pawn)
 
         return pawn_data
@@ -141,22 +190,19 @@ class Save:
         for element in xml_elements:
             current_element_data = {
                 "plant_id": element.find(".//id").text,
-                "plant_definition": element.find(".//def").text,
-                "plant_map_id": element.find(".//map").text,
-                "plant_position": element.find(".//pos").text,
-                "plant_growth": element.find(".//growth").text,
             }
-            plant_age = element.find(".//age")
-
-            if plant_age is None:
-                current_element_data["plant_age"] = None
-                logging.debug("Detected plant with no defined age:\n%s", list(element.iter()))
-
-                for child in element:
-                    logging.debug("---\n%s\n%s\n---", child.tag, child.text)
-            elif isinstance(plant_age, xml.etree.ElementTree.Element):
-                current_element_data["plant_age"] = plant_age.text
-
+            xpath_pattern_key_list = [
+                ("plant_definition", ".//def"),
+                ("plant_map_id", ".//map"),
+                ("plant_position", ".//pos"),
+                ("plant_growth", ".//growth"),
+                ("plant_age", ".//age"),
+            ]
+            self.add_values_to_dictionary(
+                dictionary=current_element_data,
+                xpath_pattern_key_list=xpath_pattern_key_list,
+                parent_element=element
+            )
             plant_data.append(current_element_data)
 
         return plant_data
