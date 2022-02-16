@@ -2,6 +2,7 @@
 
 import glob
 import logging
+import multiprocessing
 import os
 import pathlib
 import re
@@ -27,6 +28,7 @@ class Save:
         """
         self.data = Bunch()
         self.data.path = path_to_save_file
+        self.data.file_base_name = os.path.basename(self.data.path)
 
         # Parse the XML document and get the root
         self.data.root = xml.etree.ElementTree.parse(self.data.path).getroot()
@@ -411,11 +413,41 @@ class SaveSeries:
         Returns:
         None
         """
-        for save_file_base_name, save_file_dictionary in self.dictionary.items():
-            logging.debug("Loading data for save file into series: %s", save_file_base_name)
-            save_file_dictionary["save"] = Save(path_to_save_file=save_file_dictionary["path"])
-            logging.debug("Finished loading data for save file into series: %s",
-                          save_file_base_name)
+        logging.debug("Creating worker pool")
+
+        with multiprocessing.Pool() as pool:
+            result = pool.map(self.load_save_data_worker_task, list(self.dictionary.keys()))
+
+        logging.info("All work given to the worker pool has been completed (%d tasks)",
+                     len(result))
+        logging.debug("result = %s", result)
+        logging.debug("Joining results from worker pool tasks")
+
+        for save in result:
+            self.dictionary[save.data.file_base_name]["save"] = save
+
+        logging.debug("Successfully loaded save data using worker pool")
+
+    def load_save_data_worker_task(self, save_base_name: str) -> Save:
+        """Execute the load operation for a single save file
+
+        Parameters:
+        save_base_name (str): The base name of the save, which is used as the reference key
+
+        Returns:
+        Save: The loaded Save object
+        """
+        logging.debug("Worker starting to process save: %s", save_base_name)
+        save_path = self.dictionary[save_base_name]["path"]
+        current_save = Save(path_to_save_file=save_path)
+        logging.debug("Worker is finished processing save: %s", save_base_name)
+        logging.debug("Showing current view of self.dictionary.keys() = \n%s",
+                      self.dictionary.keys())
+
+        for key, value in self.dictionary.items():
+            logging.debug("Keys for save, %s: %s", key, value.keys())
+
+        return current_save
 
     def scan_save_file_dir(self) -> None:
         """Populate the dictionary property for saves files matching save_file_regex_pattern
