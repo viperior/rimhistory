@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.6.0](https://github.com/stone-tech-inc/rimhistory/tree/v0.6.0) (TBD)
+
+### New features
+
+* Asynchronous File Loading ([#16][i16])
+
+[i16]: https://github.com/stone-tech-inc/rimhistory/issues/16
+
 ## [0.5.0](https://github.com/stone-tech-inc/rimhistory/tree/v0.5.0) (2022-02-15)
 
 ### New features
