@@ -29,6 +29,5 @@ jobs:
         flake8 . --count --max-complexity=10 --max-line-length=100 --statistics
     - name: Test with pytest
       run: |
-        cp config.json.example config.json
         python -m coverage run -m pytest -v
         coverage report -m --fail-under 100
