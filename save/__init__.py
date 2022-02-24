@@ -19,6 +19,7 @@ class Save:
 
         Parameters:
         path_to_save_file (pathlib.Path): The path to the RimWorld save file to be loaded
+        preserve_root (bool): Keeps the XML root element available for access if True
 
         Returns:
         None
