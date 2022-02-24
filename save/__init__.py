@@ -14,14 +14,11 @@ import pandas
 
 class Save:
     """Extract the XML data from a RimWorld save file and return the elements"""
-    def __init__(self, path_to_save_file: pathlib.Path, reduce_xml: bool = False,
-                 xml_remove_list: list = None, preserve_root: bool = False) -> None:
+    def __init__(self, path_to_save_file: pathlib.Path, preserve_root: bool = False) -> None:
         """Initialize the Save object by parsing the root XML object using ElementTree
 
         Parameters:
         path_to_save_file (pathlib.Path): The path to the RimWorld save file to be loaded
-        reduce_xml (bool): A Boolean value to toggle XML reduction
-        xml_remove_list (list): The list of XPath patterns to use to remove XML data
 
         Returns:
         None
@@ -32,14 +29,6 @@ class Save:
 
         # Parse the XML document and get the root
         self.data.root = xml.etree.ElementTree.parse(self.data.path).getroot()
-
-        # Reduce XML (optional)
-        if reduce_xml:
-            self.data.xml_elements_remove_list = xml_remove_list
-            elements_removed = self.reduce_xml_data()
-            logging.info("Removed %d XML elements from save file: %s",
-                         elements_removed,
-                         self.data.path)
 
         # Extract singular data points
         self.data.file_size = os.path.getsize(self.data.path)
@@ -255,53 +244,6 @@ class Save:
 
             # Add a time dimension for in-game time based on ticks passed
             dataset.dataframe["time_ticks"] = self.data.game_time_ticks
-
-    def reduce_xml_data(self) -> int:
-        """Remove unnecessary information from the XML tree using a list of XPath patterns
-
-        Parameters:
-        None
-
-        Returns:
-        int: The number of elements removed
-        """
-        total_elements_removed_count = 0
-
-        for search_pattern in self.data.xml_elements_remove_list:
-            total_elements_removed_count += self.remove_matching_elements(search_pattern)
-
-        return total_elements_removed_count
-
-    def remove_matching_elements(self, search_pattern: str) -> int:
-        """Remove XML elements matching the given search pattern
-
-        Parameters:
-        search_pattern (str): The XPath search pattern to use to find matching elements in the tree
-
-        Returns:
-        int: The number of elements removed
-        """
-        elements_removed_count = 0
-        sentry = True
-
-        while sentry:
-            element = self.data.root.find(search_pattern)
-            starting_element_removed_count = elements_removed_count
-
-            if element is not None:
-                parent_element_search_pattern = f"{search_pattern}/.."
-                parent = self.data.root.find(parent_element_search_pattern)
-                assert isinstance(parent, xml.etree.ElementTree.Element)
-
-                if parent is not None:
-                    parent.remove(element)
-                    elements_removed_count += 1
-
-            # If no element was removed, stop trying to remove new occurrences
-            if elements_removed_count == starting_element_removed_count:
-                sentry = False
-
-        return elements_removed_count
 
     def transform_plant_dataframe(self) -> None:
         """Transform the plants DataFrame by adding calculated columns
