@@ -133,8 +133,3 @@ dmypy.json
 
 # Cloud9 files
 .~c9*
-
-# rimhistory custom ignore files
-data/
-tmpdir/
-config.json
