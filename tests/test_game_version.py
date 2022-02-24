@@ -4,16 +4,16 @@ import logging
 from save import Save
 
 
-def test_game_version(config_data: dict) -> None:
+def test_game_version(test_data_list: list) -> None:
     """Test the retrieval of the RimWorld base game version from the save file
 
     Parameters:
-    config_data (dict): The project configuration data as a dictionary (fixture)
+    test_data_list (list): The list of paths to the test input data files (fixture)
 
     Returns:
     None
     """
-    path_to_save_file = config_data["rimworld_save_file_path"]
+    path_to_save_file = test_data_list[0]
     game_version = Save(path_to_save_file=path_to_save_file).data.game_version
     logging.debug("Game version = %s", game_version)
 

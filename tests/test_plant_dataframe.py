@@ -7,16 +7,16 @@ import pandas
 from save import Save
 
 
-def test_plant_dataframe(config_data: dict) -> None:
+def test_plant_dataframe(test_data_list: list) -> None:
     """Test the plant_dataframe function
 
     Parameters:
-    config_data (dict): The project configuration data as a dictionary (fixture)
+    test_data_list (list): The list of paths to the test input data files (fixture)
 
     Returns:
     None
     """
-    save = Save(path_to_save_file=config_data["rimworld_save_file_path"])
+    save = Save(path_to_save_file=test_data_list[0])
     plant_dataframe = save.data.dataset.plant.dataframe
 
     # Test the data type of the frame

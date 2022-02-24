@@ -10,13 +10,15 @@ import view.summary_report
 
 @pytest.mark.parametrize("output_file_name_base", ["summary_report"])
 def test_generate_summary_report(output_file_name_base: str, tmp_path: pathlib.Path,
-                                 config_data: dict) -> None:
+                                 test_data_directory: pathlib.Path, test_save_file_regex: str)\
+                                     -> None:
     """Test the view.summary_report.generate_summary_report function
 
     Parameters:
     output_file_name_base (str): The file name base to use when creating the report
-    tmp_path (pathlib.Path): The path used to stage files needed for testing (pytest fixture)
-    config_data (dict): The project configuration data as a dictionary (fixture)
+    tmp_path (pathlib.Path): The path used to stage files needed for testing (fixture)
+    test_data_directory (pathlib.Path): The directory containing test input data (fixture)
+    test_save_file_regex (str): The regex pattern matching the test input data file names (fixture)
 
     Returns:
     None
@@ -25,8 +27,8 @@ def test_generate_summary_report(output_file_name_base: str, tmp_path: pathlib.P
 
     # Generate the report
     view.summary_report.generate_summary_report(
-        save_dir_path=config_data["rimworld_save_file_dir"],
-        file_regex_pattern=config_data["rimworld_save_file_series_pattern"],
+        save_dir_path=test_data_directory,
+        file_regex_pattern=test_save_file_regex,
         output_path=output_path
     )
 
