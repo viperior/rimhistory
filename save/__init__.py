@@ -1,6 +1,6 @@
 """Extract XML data from a RimWorld save file and return elements"""
 
-import glob
+import gzip
 import logging
 import multiprocessing
 import os
@@ -10,6 +10,7 @@ import xml.etree.ElementTree
 
 from bunch import Bunch
 import pandas
+import wcmatch.pathlib
 
 
 class Save:
@@ -29,7 +30,12 @@ class Save:
         self.data.file_base_name = os.path.basename(self.data.path)
 
         # Parse the XML document and get the root
-        self.data.root = xml.etree.ElementTree.parse(self.data.path).getroot()
+        if os.path.splitext(self.data.path)[1] == ".gz":
+            # Handle gzip compressed files
+            with gzip.open(self.data.path, "rb") as save_file:
+                self.data.root = xml.etree.ElementTree.parse(save_file).getroot()
+        else:
+            self.data.root = xml.etree.ElementTree.parse(self.data.path).getroot()
 
         # Extract singular data points
         self.data.file_size = os.path.getsize(self.data.path)
@@ -401,7 +407,7 @@ class SaveSeries:
         Returns:
         None
         """
-        saves_all = glob.glob(f"{self.save_dir_path}/*.rws")
+        saves_all = list(wcmatch.pathlib.Path(self.save_dir_path).glob(["*.rws", "*.rws.gz"]))
         logging.debug("saves_all = %s", saves_all)
         logging.debug("Using regex pattern for search = %s", self.save_file_regex_pattern)
 
@@ -416,6 +422,10 @@ class SaveSeries:
             save_path for save_path in saves_all if re.match(pattern, os.path.basename(save_path))
         ]
         logging.debug("saves_filtered = %s", saves_filtered)
+
+        if len(saves_filtered) < 1:
+            logging.error("0 saves were processed\nAll saves = %s\nFiltered saves = %s", saves_all,
+                          saves_filtered)
 
         for save_path in saves_filtered:
             base_name = os.path.basename(save_path)
