@@ -6,6 +6,26 @@ import pathlib
 from save import SaveSeries
 
 
+def test_bad_regex(test_data_directory: pathlib.Path) -> None:
+    """Test the SaveSeries class using a regex pattern matching 0 save files
+
+    Parameters:
+    test_data_directory (pathlib.Path): The directory containing test input data (fixture)
+
+    Returns:
+    None
+    """
+    series = None
+
+    try:
+        series = SaveSeries(save_dir_path=test_data_directory,
+                            save_file_regex_pattern="no_file_matches_this")
+    except AssertionError as error:
+        assert isinstance(error, AssertionError)
+    finally:
+        assert series is None
+
+
 def test_class_save_series(test_data_directory: pathlib.Path, test_save_file_regex: str) -> None:
     """Test the SaveSeries class
 
