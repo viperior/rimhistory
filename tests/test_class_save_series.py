@@ -3,6 +3,7 @@
 import logging
 import pathlib
 
+from save import Save
 from save import SaveSeries
 
 
@@ -64,3 +65,29 @@ def test_empty_source_directory(tmp_path: pathlib.Path, test_save_file_regex: st
         assert isinstance(error, AssertionError)
     finally:
         assert series is None
+
+
+def test_load_save_data_worker_task(test_data_directory: pathlib.Path, test_save_file_regex: str)\
+    -> None:
+    """Test the SaveSeries.load_save_data_worker_task function
+
+    Parameters:
+    test_data_directory (pathlib.Path): The directory containing test input data (fixture)
+    test_save_file_regex (str): The regex pattern matching the test input data file names (fixture)
+
+    Return:
+    None
+    """
+    series = SaveSeries(
+        save_dir_path=test_data_directory,
+        save_file_regex_pattern=test_save_file_regex
+    )
+    test_save_base_name = "demosave 4"
+    assert len(series.dictionary) == 3
+    series.dictionary[test_save_base_name] = {"path": test_data_directory / "demosave 1.rws.gz"}
+    save = series.load_save_data_worker_task(test_save_base_name)
+
+    # Validate that the new save file was processed successfully
+    assert isinstance(save, Save)
+    assert len(series.dictionary) == 4
+    assert len(save.data.dataset.plant.dataframe.index) == 11169
