@@ -12,11 +12,11 @@ import plotly.express
 from save import SaveSeries
 
 
-def get_environment_section(pawn_data: list, weather_data: dict) -> None:
+def get_environment_section(pawn_data: pandas.core.frame.DataFrame, weather_data: dict) -> None:
     """Build the environment and weather section of the report
 
     Parameters:
-    pawn_data (list): The list of dictionaries containing pawn data
+    pawn_data (pandas.core.frame.DataFrame): The dataframe containing pawn data
     weather_data (dict): A dictionary containing weather data for the map being analyzed
 
     Returns:
@@ -33,7 +33,7 @@ def get_environment_section(pawn_data: list, weather_data: dict) -> None:
     h3("Pawn Ambient Temperatures")
 
     with ul():
-        for pawn in pawn_data:
+        for _, pawn in pawn_data.iterrows():
             ambient_temperature = round(float(pawn['pawn_ambient_temperature']), 1)
             ambient_temperature_string = f"{ambient_temperature}&#176;C"
             pawn_temperature_string = f"{ambient_temperature_string} temperature felt by \
@@ -77,6 +77,9 @@ def generate_summary_report(save_dir_path: pathlib.Path, file_regex_pattern: str
     )
     save = series.latest_save["save"]
     doc = dominate.document(title='RimWorld Save Game Summary Report')
+    current_pawn_data = save.data.dataset.pawn.dataframe.query("(current_record == True) and \
+                                                               (is_humanoid_colonist == True)")
+    current_pawn_data.reset_index(drop=True, inplace=True)
 
     with doc.head:
         link(rel='stylesheet', href='style.css')
@@ -101,10 +104,10 @@ def generate_summary_report(save_dir_path: pathlib.Path, file_regex_pattern: str
 
                     li(mod_list_item_content)
 
-            h2(f"Colonists ({len(save.data.dataset.pawn['dictionary_list'])})")
+            h2(f"Colonists ({len(current_pawn_data.index)})")
 
             with ul():
-                for pawn in save.data.dataset.pawn.dictionary_list:
+                for _, pawn in current_pawn_data.iterrows():
                     li(f"{pawn['pawn_name_full']}, age {pawn['pawn_biological_age']}")
 
             get_plant_section(
@@ -112,7 +115,7 @@ def generate_summary_report(save_dir_path: pathlib.Path, file_regex_pattern: str
                 series_plant_dataset=series.dataset.plant
             )
             get_environment_section(
-                pawn_data=save.data.dataset.pawn.dictionary_list,
+                pawn_data=current_pawn_data,
                 weather_data=save.data.dataset.weather.dictionary_list[0]
             )
 

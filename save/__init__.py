@@ -58,6 +58,7 @@ class Save:
         self.generate_dataframes()
 
         # Apply transformations to DataFrames
+        self.transform_pawn_dataframe()
         self.transform_plant_dataframe()
 
         logging.info("Finished creating new Save object from file: %s", self.data.path)
@@ -149,6 +150,7 @@ class Save:
         for element in pawn_data_elements:
             current_pawn = {
                 "pawn_id": element.find(".//pawnData/pawn").text,
+                "tale_date": element.find(".//date").text,
             }
             xpath_pattern_key_list = [
                 ("pawn_name_nick", ".//pawnData/name/nick"),
@@ -251,6 +253,26 @@ class Save:
 
             # Add a time dimension for in-game time based on ticks passed
             dataset.dataframe["time_ticks"] = self.data.game_time_ticks
+
+    def transform_pawn_dataframe(self) -> None:
+        """Apply transformations to the pawn DataFrame
+
+        Parameters:
+        None
+
+        Returns:
+        None
+        """
+        # Convert the tale_date column from a string to an integer
+        dataframe = self.data.dataset.pawn.dataframe
+        dataframe["tale_date_integer"] = dataframe["tale_date"].astype(int)
+        dataframe.drop(columns=["tale_date"])
+        dataframe.rename(columns={"tale_date_integer": "tale_date"})
+
+        # Determine the current record (latest chronological) for each unique pawn
+        dataframe["tale_date_max"] = dataframe.groupby(["pawn_id"])["tale_date"].transform(max)
+        dataframe["current_record"] = dataframe["tale_date_max"] == dataframe["tale_date"]
+        dataframe["is_humanoid_colonist"] = dataframe["pawn_id"].str.contains("Thing_Android")
 
     def transform_plant_dataframe(self) -> None:
         """Transform the plants DataFrame by adding calculated columns

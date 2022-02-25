@@ -7,6 +7,10 @@
 * Load files asynchronously to reduce runtime ([#16][i16])
 * Support gzip-compressed save files (.gz extension)
 
+### Issues fixed
+
+* Deduplicate pawn data by adding and using new columns in the pawn dataframe: `tale_date, current_record, is_humanoid_colonist` ([#20][i20])
+
 ### Improvements
 
 * Bump `coverage` from 6.3.1 to 6.3.2 ([#19][p19])
@@ -21,6 +25,7 @@
 * Update test cases to reflect changes to test input data, test configuration, and the usage of the new pytest fixtures
 
 [i16]: https://github.com/stone-tech-inc/rimhistory/issues/16
+[i20]: https://github.com/stone-tech-inc/rimhistory/issues/20
 [p19]: https://github.com/stone-tech-inc/rimhistory/pull/19
 
 ## [0.5.0](https://github.com/stone-tech-inc/rimhistory/tree/v0.5.0) (2022-02-15)

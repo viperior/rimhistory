@@ -12,6 +12,7 @@ def test_get_pawn_count(test_data_list: list) -> None:
     Returns:
     None
     """
-    pawn_data = Save(path_to_save_file=test_data_list[0]).data.dataset.pawn.dictionary_list
+    pawn_data = Save(path_to_save_file=test_data_list[0]).data.dataset.pawn.dataframe
+    pawn_data.query("current_record == True", inplace=True)
 
-    assert len(pawn_data) == 3
+    assert len(pawn_data.index) == 5
