@@ -68,7 +68,7 @@ def test_empty_source_directory(tmp_path: pathlib.Path, test_save_file_regex: st
 
 
 def test_load_save_data_worker_task(test_data_directory: pathlib.Path, test_save_file_regex: str)\
-    -> None:
+        -> None:
     """Test the SaveSeries.load_save_data_worker_task function
 
     Parameters:
