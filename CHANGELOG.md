@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.6.0](https://github.com/stone-tech-inc/rimhistory/tree/v0.6.0) (2022-02-24)
+## [0.6.0](https://github.com/stone-tech-inc/rimhistory/tree/v0.6.0) (2022-02-25)
 
 ### New features
 
