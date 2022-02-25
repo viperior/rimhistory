@@ -1,7 +1,8 @@
 """Extract XML data from a RimWorld save file and return elements"""
 
-import glob
+import gzip
 import logging
+import multiprocessing
 import os
 import pathlib
 import re
@@ -9,35 +10,32 @@ import xml.etree.ElementTree
 
 from bunch import Bunch
 import pandas
+import wcmatch.pathlib
 
 
 class Save:
     """Extract the XML data from a RimWorld save file and return the elements"""
-    def __init__(self, path_to_save_file: pathlib.Path, reduce_xml: bool = False,
-                 xml_remove_list: list = None, preserve_root: bool = False) -> None:
+    def __init__(self, path_to_save_file: pathlib.Path, preserve_root: bool = False) -> None:
         """Initialize the Save object by parsing the root XML object using ElementTree
 
         Parameters:
         path_to_save_file (pathlib.Path): The path to the RimWorld save file to be loaded
-        reduce_xml (bool): A Boolean value to toggle XML reduction
-        xml_remove_list (list): The list of XPath patterns to use to remove XML data
+        preserve_root (bool): Keeps the XML root element available for access if True
 
         Returns:
         None
         """
         self.data = Bunch()
         self.data.path = path_to_save_file
+        self.data.file_base_name = os.path.basename(self.data.path)
 
         # Parse the XML document and get the root
-        self.data.root = xml.etree.ElementTree.parse(self.data.path).getroot()
-
-        # Reduce XML (optional)
-        if reduce_xml:
-            self.data.xml_elements_remove_list = xml_remove_list
-            elements_removed = self.reduce_xml_data()
-            logging.info("Removed %d XML elements from save file: %s",
-                         elements_removed,
-                         self.data.path)
+        if os.path.splitext(self.data.path)[1] == ".gz":
+            # Handle gzip compressed files
+            with gzip.open(self.data.path, "rb") as save_file:
+                self.data.root = xml.etree.ElementTree.parse(save_file).getroot()
+        else:
+            self.data.root = xml.etree.ElementTree.parse(self.data.path).getroot()
 
         # Extract singular data points
         self.data.file_size = os.path.getsize(self.data.path)
@@ -60,6 +58,7 @@ class Save:
         self.generate_dataframes()
 
         # Apply transformations to DataFrames
+        self.transform_pawn_dataframe()
         self.transform_plant_dataframe()
 
         logging.info("Finished creating new Save object from file: %s", self.data.path)
@@ -151,6 +150,7 @@ class Save:
         for element in pawn_data_elements:
             current_pawn = {
                 "pawn_id": element.find(".//pawnData/pawn").text,
+                "tale_date": element.find(".//date").text,
             }
             xpath_pattern_key_list = [
                 ("pawn_name_nick", ".//pawnData/name/nick"),
@@ -254,52 +254,25 @@ class Save:
             # Add a time dimension for in-game time based on ticks passed
             dataset.dataframe["time_ticks"] = self.data.game_time_ticks
 
-    def reduce_xml_data(self) -> int:
-        """Remove unnecessary information from the XML tree using a list of XPath patterns
+    def transform_pawn_dataframe(self) -> None:
+        """Apply transformations to the pawn DataFrame
 
         Parameters:
         None
 
         Returns:
-        int: The number of elements removed
+        None
         """
-        total_elements_removed_count = 0
+        # Convert the tale_date column from a string to an integer
+        dataframe = self.data.dataset.pawn.dataframe
+        dataframe["tale_date_integer"] = dataframe["tale_date"].astype(int)
+        dataframe.drop(columns=["tale_date"])
+        dataframe.rename(columns={"tale_date_integer": "tale_date"})
 
-        for search_pattern in self.data.xml_elements_remove_list:
-            total_elements_removed_count += self.remove_matching_elements(search_pattern)
-
-        return total_elements_removed_count
-
-    def remove_matching_elements(self, search_pattern: str) -> int:
-        """Remove XML elements matching the given search pattern
-
-        Parameters:
-        search_pattern (str): The XPath search pattern to use to find matching elements in the tree
-
-        Returns:
-        int: The number of elements removed
-        """
-        elements_removed_count = 0
-        sentry = True
-
-        while sentry:
-            element = self.data.root.find(search_pattern)
-            starting_element_removed_count = elements_removed_count
-
-            if element is not None:
-                parent_element_search_pattern = f"{search_pattern}/.."
-                parent = self.data.root.find(parent_element_search_pattern)
-                assert isinstance(parent, xml.etree.ElementTree.Element)
-
-                if parent is not None:
-                    parent.remove(element)
-                    elements_removed_count += 1
-
-            # If no element was removed, stop trying to remove new occurrences
-            if elements_removed_count == starting_element_removed_count:
-                sentry = False
-
-        return elements_removed_count
+        # Determine the current record (latest chronological) for each unique pawn
+        dataframe["tale_date_max"] = dataframe.groupby(["pawn_id"])["tale_date"].transform(max)
+        dataframe["current_record"] = dataframe["tale_date_max"] == dataframe["tale_date"]
+        dataframe["is_humanoid_colonist"] = dataframe["pawn_id"].str.contains("Thing_Android")
 
     def transform_plant_dataframe(self) -> None:
         """Transform the plants DataFrame by adding calculated columns
@@ -351,6 +324,11 @@ class SaveSeries:
         Returns:
         None
         """
+        # Validate that there are dataframes present to aggregate before continuing
+        if len(self.dictionary) < 1:
+            logging.error("0 source dataframes detected while attempting to aggregate frames")
+            assert len(self.dictionary) > 0
+
         # Get only the keys (names of datasets) from one of the stored save datasets
         dataset_names = self.dictionary[list(self.dictionary.keys())[0]]["save"].data.dataset.keys()
         logging.debug("Aggregating datasets: %s", dataset_names)
@@ -411,11 +389,41 @@ class SaveSeries:
         Returns:
         None
         """
-        for save_file_base_name, save_file_dictionary in self.dictionary.items():
-            logging.debug("Loading data for save file into series: %s", save_file_base_name)
-            save_file_dictionary["save"] = Save(path_to_save_file=save_file_dictionary["path"])
-            logging.debug("Finished loading data for save file into series: %s",
-                          save_file_base_name)
+        logging.debug("Creating worker pool")
+
+        with multiprocessing.Pool() as pool:
+            result = pool.map(self.load_save_data_worker_task, list(self.dictionary.keys()))
+
+        logging.info("All work given to the worker pool has been completed (%d tasks)",
+                     len(result))
+        logging.debug("result = %s", result)
+        logging.debug("Joining results from worker pool tasks")
+
+        for save in result:
+            self.dictionary[save.data.file_base_name]["save"] = save
+
+        logging.debug("Successfully loaded save data using worker pool")
+
+    def load_save_data_worker_task(self, save_base_name: str) -> Save:
+        """Execute the load operation for a single save file
+
+        Parameters:
+        save_base_name (str): The base name of the save, which is used as the reference key
+
+        Returns:
+        Save: The loaded Save object
+        """
+        logging.debug("Worker starting to process save: %s", save_base_name)
+        save_path = self.dictionary[save_base_name]["path"]
+        current_save = Save(path_to_save_file=save_path)
+        logging.debug("Worker is finished processing save: %s", save_base_name)
+        logging.debug("Showing current view of self.dictionary.keys() = \n%s",
+                      self.dictionary.keys())
+
+        for key, value in self.dictionary.items():
+            logging.debug("Keys for save, %s: %s", key, value.keys())
+
+        return current_save
 
     def scan_save_file_dir(self) -> None:
         """Populate the dictionary property for saves files matching save_file_regex_pattern
@@ -426,7 +434,7 @@ class SaveSeries:
         Returns:
         None
         """
-        saves_all = glob.glob(f"{self.save_dir_path}/*.rws")
+        saves_all = list(wcmatch.pathlib.Path(self.save_dir_path).glob(["*.rws", "*.rws.gz"]))
         logging.debug("saves_all = %s", saves_all)
         logging.debug("Using regex pattern for search = %s", self.save_file_regex_pattern)
 
@@ -441,6 +449,10 @@ class SaveSeries:
             save_path for save_path in saves_all if re.match(pattern, os.path.basename(save_path))
         ]
         logging.debug("saves_filtered = %s", saves_filtered)
+
+        if len(saves_filtered) < 1:
+            logging.error("0 saves were processed\nAll saves = %s\nFiltered saves = %s", saves_all,
+                          saves_filtered)
 
         for save_path in saves_filtered:
             base_name = os.path.basename(save_path)

@@ -1,5 +1,33 @@
 # Changelog
 
+## [0.6.0](https://github.com/stone-tech-inc/rimhistory/tree/v0.6.0) (2022-02-25)
+
+### New features
+
+* Load files asynchronously to reduce runtime ([#16][i16])
+* Support gzip-compressed save files (.gz extension)
+
+### Issues fixed
+
+* Deduplicate pawn data by adding and using new columns in the pawn dataframe: `tale_date, current_record, is_humanoid_colonist` ([#20][i20])
+
+### Improvements
+
+* Bump `coverage` from 6.3.1 to 6.3.2 ([#19][p19])
+* Remove functions and tests related to XML element removal, which can be spun off into a save file size reduction tool if desired
+* Remove obsolete, custom ignore rules from `.gitignore`
+
+### Testing
+
+* Move the test-related config data from `config.json` to pytest fixtures to simplify the project structure
+* Replace the single save file with a series of compressed save files to test the `SaveSeries` class and the time-series analysis features
+* Modify the GitHub Actions workflow to run the pytest test cases asynchronously first, halting on the first error, allowing for quicker feedback in the case of a problem
+* Update test cases to reflect changes to test input data, test configuration, and the usage of the new pytest fixtures
+
+[i16]: https://github.com/stone-tech-inc/rimhistory/issues/16
+[i20]: https://github.com/stone-tech-inc/rimhistory/issues/20
+[p19]: https://github.com/stone-tech-inc/rimhistory/pull/19
+
 ## [0.5.0](https://github.com/stone-tech-inc/rimhistory/tree/v0.5.0) (2022-02-15)
 
 ### New features

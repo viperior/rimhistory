@@ -1,25 +1,45 @@
 """Pytest fixtures"""
 
-import json
-import logging
+import glob
+import pathlib
 
 import pytest
 
 
 @pytest.fixture(scope="session")
-def config_data() -> dict:
-    """Return the project configuration data as a dictionary
+def test_data_directory() -> pathlib.Path:
+    """Return the directory containing test input data
 
     Parameters:
     None
 
     Returns:
-    dict: Dictionary containing project configuration settings
+    pathlib.Path: The directory containing test input data
     """
-    config_file_name = "config.json"
-    logging.debug("Loading configuration data from: %s", config_file_name)
+    return pathlib.Path("test_data")
 
-    with open(config_file_name, "r", encoding="utf_8") as config_file:
-        project_config_data = json.load(config_file)
 
-    yield project_config_data
+@pytest.fixture(scope="session")
+def test_data_list() -> list:
+    """Return the list of paths to the test input data files
+
+    Parameters:
+    None
+
+    Returns:
+    list: The list of paths to the test input data files
+    """
+    return glob.glob("test_data/*.rws.gz")
+
+
+@pytest.fixture(scope="session")
+def test_save_file_regex() -> str:
+    """Return the regex pattern matching the test input data file names
+
+    Parameters:
+    None
+
+    Returns:
+    str: The regex pattern matching the test input data file names
+    """
+    return r"demosave\s\d{1,10}"

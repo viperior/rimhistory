@@ -5,18 +5,17 @@ import logging
 from save import Save
 
 
-def test_mod_list(config_data: dict) -> None:
+def test_mod_list(test_data_list: list) -> None:
     """Test the extract_mod_list function that extracts data about installed mods from a save
     file
 
     Parameters:
-    config_data (dict): The project configuration data as a dictionary (fixture)
+    test_data_list (list): The list of paths to the test input data files (fixture)
 
     Returns:
     None
     """
-    path_to_save_file = config_data["rimworld_save_file_path"]
-    mod_list = Save(path_to_save_file=path_to_save_file).data.dataset.mod.dictionary_list
+    mod_list = Save(path_to_save_file=test_data_list[0]).data.dataset.mod.dictionary_list
     assert 0 < len(mod_list) < 20000
     logging.debug("List of installed mods = \n%s", json.dumps(mod_list, indent=4))
 
