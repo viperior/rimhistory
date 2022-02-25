@@ -6,6 +6,8 @@ import pathlib
 import shutil
 import xml.etree.ElementTree
 
+import pandas
+
 from save import Save
 
 
@@ -19,17 +21,17 @@ def test_class_save_pawn(test_data_list: list) -> None:
     None
     """
     save = Save(path_to_save_file=test_data_list[0])
-    pawn_data = save.data.dataset.pawn.dictionary_list
+    pawn_df = save.data.pawn
 
     # Test the pawn property's data type
-    assert isinstance(pawn_data, list)
+    assert isinstance(pawn_df, pandas.core.frame.DataFrame)
 
     # Test the number of pawns detected
-    assert 1 <= len(pawn_data) <= 150
-    logging.debug("Found pawn = %s", pawn_data[0]["pawn_id"])
+    assert 1 <= len(pawn_df.index) <= 150
+    logging.debug("Found pawn = \n%s", pawn_df["pawn_id"].head(1))
 
     # Test the length of the first pawn_id
-    assert 3 <= len(pawn_data[0]["pawn_id"]) <= 50
+    assert 3 <= len(pawn_df["pawn_id"].head(1).to_string()) <= 50
 
 
 def test_class_save_root(test_data_list: list) -> None:
@@ -147,5 +149,5 @@ def test_uncompressed_file(test_data_list: list, tmp_path: pathlib.Path) -> None
 
     # Perform basic checks on the created Save object
     assert isinstance(save, Save)
-    assert "plant" in save.data.dataset.keys()
-    assert 1 <= len(save.data.dataset.pawn) <= 50
+    assert "plant" in save.data.keys()
+    assert 1 <= len(save.data.pawn.index) <= 50

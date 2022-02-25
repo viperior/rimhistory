@@ -17,10 +17,10 @@ def test_plant_growth_chart(tmp_path: pathlib.Path, test_data_list: list) -> Non
     Returns:
     None
     """
-    plant_dataframe = Save(path_to_save_file=test_data_list[0]).data.dataset.plant.dataframe
+    plant_df = Save(path_to_save_file=test_data_list[0]).data.plant
     labels = {"plant_growth_bin": "Plant growth (%)"}
     plant_growth_chart_html = view.summary_report.get_histogram_html(
-        dataframe=plant_dataframe,
+        df=plant_df,
         x_axis_field="plant_growth_bin",
         labels=labels
     )

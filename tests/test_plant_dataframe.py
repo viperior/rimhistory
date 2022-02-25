@@ -17,11 +17,10 @@ def test_plant_dataframe(test_data_list: list) -> None:
     None
     """
     save = Save(path_to_save_file=test_data_list[0])
-    plant_dataframe = save.data.dataset.plant.dataframe
+    plant_df = save.data.plant
 
     # Test the data type of the frame
-    logging.debug("type(plant_dataframe) = %s", type(plant_dataframe))
-    assert isinstance(plant_dataframe, pandas.core.frame.DataFrame)
+    assert isinstance(plant_df, pandas.core.frame.DataFrame)
 
     # Test the expected columns
     expected_columns = [
@@ -36,17 +35,16 @@ def test_plant_dataframe(test_data_list: list) -> None:
         "time_ticks",
     ]
     logging.debug("Expected columns (count = %d) = %s", len(expected_columns), expected_columns)
-    logging.debug("Actual columns (count = %d) = %s", len(plant_dataframe.columns),
-                  plant_dataframe.columns)
-    assert len(plant_dataframe.columns) == len(expected_columns)
+    logging.debug("Actual columns (count = %d) = %s", len(plant_df.columns), plant_df.columns)
+    assert len(plant_df.columns) == len(expected_columns)
 
     for column in expected_columns:
-        assert column in plant_dataframe.columns
+        assert column in plant_df.columns
 
     # Test the expected number of rows
     row_count_minimum = 10000
     row_count_maximum = 40000
     logging.debug("Expected rows in dataframe is between %d and %d", row_count_minimum,
                   row_count_maximum)
-    logging.debug("Actual rows in dataframe = %d", len(plant_dataframe.index))
-    assert row_count_minimum <= len(plant_dataframe.index) <= row_count_maximum
+    logging.debug("Actual rows in dataframe = %d", len(plant_df.index))
+    assert row_count_minimum <= len(plant_df.index) <= row_count_maximum

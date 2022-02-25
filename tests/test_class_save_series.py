@@ -40,7 +40,7 @@ def test_class_save_series(test_data_directory: pathlib.Path, test_save_file_reg
     series = SaveSeries(save_dir_path=test_data_directory,
                         save_file_regex_pattern=test_save_file_regex)
     expected_count = 24232
-    actual_count = len(series.dataset.plant.dataframe.index)
+    actual_count = len(series.data.plant.index)
     logging.debug("Dataframe aggregation test result:\nExpected count: %d\nActual count: %d",
                   expected_count, actual_count)
 
@@ -90,4 +90,4 @@ def test_load_save_data_worker_task(test_data_directory: pathlib.Path, test_save
     # Validate that the new save file was processed successfully
     assert isinstance(save, Save)
     assert len(series.dictionary) == 4
-    assert len(save.data.dataset.plant.dataframe.index) == 11169
+    assert len(save.data.plant.index) == 11169
