@@ -324,6 +324,11 @@ class SaveSeries:
         Returns:
         None
         """
+        # Validate that there are dataframes present to aggregate before continuing
+        if len(self.dictionary) < 1:
+            logging.error("0 source dataframes detected while attempting to aggregate frames")
+            assert len(self.dictionary) > 0
+
         # Get only the keys (names of datasets) from one of the stored save datasets
         dataset_names = self.dictionary[list(self.dictionary.keys())[0]]["save"].data.dataset.keys()
         logging.debug("Aggregating datasets: %s", dataset_names)
