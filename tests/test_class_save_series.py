@@ -58,7 +58,6 @@ def test_empty_source_directory(tmp_path: pathlib.Path, test_save_file_regex: st
     """
     series = None
 
-    # Validate that the SaveSeries class throws an AssertionError when given an empty directory
     try:
         series = SaveSeries(save_dir_path=tmp_path, save_file_regex_pattern=test_save_file_regex)
     except AssertionError as error:
