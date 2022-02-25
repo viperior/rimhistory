@@ -1,6 +1,9 @@
 """Test the Save class"""
 
+import gzip
 import logging
+import pathlib
+import shutil
 import xml.etree.ElementTree
 
 from save import Save
@@ -119,3 +122,30 @@ def test_null_handling(test_data_list: list) -> None:
     )
     assert target_key in test_dictionary
     assert test_dictionary[target_key] is None
+
+
+def test_uncompressed_file(test_data_list: list, tmp_path: pathlib.Path) -> None:
+    """Test the Save class using an uncompressed source file
+
+    Parameters:
+    test_data_list (list): The list of paths to the test input data files (fixture)
+    tmp_path (pathlib.Path): The path used to stage files needed for testing (fixture)
+
+    Returns:
+    None
+    """
+    # Create an uncompressed save file to use for testing
+    compressed_save_file_path = test_data_list[0]
+    uncompressed_save_file_path = tmp_path / "uncompressed save 1.rws"
+
+    with gzip.open(compressed_save_file_path, "rb") as compressed_file:
+        with open(uncompressed_save_file_path, "wb") as uncompressed_file:
+            shutil.copyfileobj(compressed_file, uncompressed_file)
+
+    # Create a Save object from the uncompressed file
+    save = Save(path_to_save_file=uncompressed_save_file_path)
+
+    # Perform basic checks on the created Save object
+    assert isinstance(save, Save)
+    assert "plant" in save.data.dataset.keys()
+    assert 1 <= len(save.data.dataset.pawn) <= 50
