@@ -14,7 +14,7 @@ def test_pawn_ambient_temperature(test_data_list: list) -> None:
     Returns:
     None
     """
-    pawn_data = Save(path_to_save_file=test_data_list[0]).data.dataset.pawn.dictionary_list
-    logging.debug(pawn_data[0].keys())
+    pawn_df = Save(path_to_save_file=test_data_list[0]).data.pawn
+    logging.debug("Sample pawn data =\n%s", pawn_df.head(5))
 
-    assert "pawn_ambient_temperature" in pawn_data[0].keys()
+    assert "pawn_ambient_temperature" in pawn_df.columns

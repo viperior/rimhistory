@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.7.0](https://github.com/stone-tech-inc/rimhistory/tree/v0.7.0) (2022-02-25)
+
+### Improvements
+
+* Reduce memory usage by carrying each dataset as a pandas DataFrame with no additional copies ([#21][i21])
+* Simplify the namespaces in Save and SaveSeries ([#22][i22])
+
+### Testing
+
+* Update test cases affected by changes to namespaces
+
+[i21]: https://github.com/stone-tech-inc/rimhistory/issues/21
+[i22]: https://github.com/stone-tech-inc/rimhistory/issues/22
+
 ## [0.6.0](https://github.com/stone-tech-inc/rimhistory/tree/v0.6.0) (2022-02-25)
 
 ### New features

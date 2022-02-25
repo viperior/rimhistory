@@ -42,13 +42,13 @@ class Save:
         self.data.game_version = self.data.root.find("./meta/gameVersion").text
         self.data.game_time_ticks = int(self.data.root.find(".//tickManager/ticksGame").text)
 
-        # Extract datasets
-        self.data.dataset = Bunch(
-            mod=Bunch(dictionary_list=self.extract_mod_list()),
-            pawn=Bunch(dictionary_list=self.extract_pawn_data()),
-            plant=Bunch(dictionary_list=self.extract_plant_data()),
-            weather=Bunch(dictionary_list=self.extract_weather_data()),
-        )
+        # Extract datasets into a temporary location during processing
+        self.data.dictionary_list = {
+            "mod": self.extract_mod_list(),
+            "pawn": self.extract_pawn_data(),
+            "plant": self.extract_plant_data(),
+            "weather": self.extract_weather_data(),
+        }
 
         # Delete the root object to free up memory
         if not preserve_root:
@@ -56,6 +56,9 @@ class Save:
 
         # Generate pandas DataFrames from each dataset initialized as a list of dictionaries
         self.generate_dataframes()
+
+        # Delete the list of dictionaries for each dataset to reduce memory usage
+        del self.data.dictionary_list
 
         # Apply transformations to DataFrames
         self.transform_pawn_dataframe()
@@ -238,21 +241,21 @@ class Save:
         None
         """
         # Validate the input list length
-        assert 1 <= len(self.data.dataset) <= 100
+        assert 1 <= len(self.data.dictionary_list) <= 100
 
-        logging.debug("Generating pandas DataFrames for %d datasets", len(self.data.dataset))
+        logging.debug("Generating pandas DataFrames for %d datasets\n%s",
+                      len(self.data.dictionary_list), list(self.data.dictionary_list))
 
-        for dataset_name, dataset in self.data.dataset.items():
+        for dataset_name, dataset in self.data.dictionary_list.items():
             # Validate the input dictionary and keys
-            assert isinstance(dataset, dict)
+            assert isinstance(dataset, list)
             assert isinstance(dataset_name, str)
-            assert "dataframe" not in dataset.keys()
 
             # Generate the pandas dataframe from the list of dictionaries in dictionary_list
-            dataset.dataframe = pandas.DataFrame(dataset.dictionary_list)
+            self.data[dataset_name] = pandas.DataFrame(dataset)
 
             # Add a time dimension for in-game time based on ticks passed
-            dataset.dataframe["time_ticks"] = self.data.game_time_ticks
+            self.data[dataset_name]["time_ticks"] = self.data.game_time_ticks
 
     def transform_pawn_dataframe(self) -> None:
         """Apply transformations to the pawn DataFrame
@@ -264,7 +267,7 @@ class Save:
         None
         """
         # Convert the tale_date column from a string to an integer
-        dataframe = self.data.dataset.pawn.dataframe
+        dataframe = self.data.pawn
         dataframe["tale_date_integer"] = dataframe["tale_date"].astype(int)
         dataframe.drop(columns=["tale_date"])
         dataframe.rename(columns={"tale_date_integer": "tale_date"})
@@ -284,7 +287,7 @@ class Save:
         None
         """
         # Create a column by converting plant_growth to a float and multiplying it by 100
-        dataframe = self.data.dataset.plant.dataframe
+        dataframe = self.data.plant
         dataframe["plant_growth_percentage"] = dataframe["plant_growth"].astype(float) * 100
 
         # Bin the percentage values in ranges for visualization and summarized reporting
@@ -312,7 +315,7 @@ class SaveSeries:
         self.save_file_regex_pattern = save_file_regex_pattern
         self.scan_save_file_dir()
         self.load_save_data()
-        self.dataset = Bunch()
+        self.data = Bunch()
         self.aggregate_dataframes()
 
     def aggregate_dataframes(self) -> None:
@@ -330,7 +333,12 @@ class SaveSeries:
             assert len(self.dictionary) > 0
 
         # Get only the keys (names of datasets) from one of the stored save datasets
-        dataset_names = self.dictionary[list(self.dictionary.keys())[0]]["save"].data.dataset.keys()
+        dataset_names = [
+            "mod",
+            "pawn",
+            "plant",
+            "weather",
+        ]
         logging.debug("Aggregating datasets: %s", dataset_names)
 
         for dataset_name in dataset_names:
@@ -340,12 +348,12 @@ class SaveSeries:
             for save_file_name, save_file_data in self.dictionary.items():
                 logging.debug("Adding data from save file, %s, to %s data aggregation:\n%s",
                               save_file_name, dataset_name, save_file_data["path"])
-                current_dataframe = save_file_data["save"].data.dataset[dataset_name].dataframe
+                current_dataframe = save_file_data["save"].data[dataset_name]
                 frame_combine_list.append(current_dataframe)
 
             logging.debug("Concatenating pandas dataframes into singular frame for %s data",
                           dataset_name)
-            self.dataset[dataset_name] = Bunch(dataframe=pandas.concat(frame_combine_list))
+            self.data[dataset_name] = pandas.concat(frame_combine_list)
             logging.info("Pandas dataframe combination operation complete for %s data",
                          dataset_name)
 
@@ -364,7 +372,8 @@ class SaveSeries:
         latest_save_name = None
 
         for save_name, save in self.dictionary.items():
-            current_time_value = save["save"].data.game_time_ticks
+            current_save = save["save"]
+            current_time_value = current_save.data.game_time_ticks
             logging.debug("Checking in-game time for save: %s", save_name)
             logging.debug("save.data.game_time_ticks > max_time_ticks_value == %s",
                           current_time_value > max_time_value)
@@ -372,7 +381,7 @@ class SaveSeries:
             if current_time_value > max_time_value:
                 logging.debug("New max time ticks value identified = %d", current_time_value)
                 max_time_value = current_time_value
-                latest_save = save
+                latest_save = current_save
                 latest_save_name = save_name
 
         logging.info("Identified save, %s, as the latest save, with %d ticks", latest_save_name,
