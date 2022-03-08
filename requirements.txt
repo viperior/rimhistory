@@ -26,7 +26,7 @@ lazy-object-proxy==1.7.1
     # via astroid
 mccabe==0.6.1
     # via pylint
-numpy==1.22.2
+numpy==1.22.3
     # via
     #   -r requirements.in
     #   pandas
