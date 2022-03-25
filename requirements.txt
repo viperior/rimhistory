@@ -75,7 +75,7 @@ toml==0.10.2
     # via pylint
 tomli==2.0.0
     # via pytest
-tqdm==4.63.0
+tqdm==4.63.1
     # via -r requirements.in
 wcmatch==8.3
     # via -r requirements.in

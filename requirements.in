@@ -9,5 +9,5 @@ pylint==2.12.2
 pytest==7.1.1
 pytest-forked==1.4.0
 pytest-xdist==2.5.0
-tqdm==4.63.0
+tqdm==4.63.1
 wcmatch==8.3
