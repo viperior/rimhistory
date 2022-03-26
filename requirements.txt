@@ -4,7 +4,7 @@
 #
 #    pip-compile
 #
-astroid==2.9.3
+astroid==2.11.1
     # via pylint
 attrs==21.4.0
     # via pytest
@@ -14,6 +14,8 @@ bunch==1.0.1
     # via -r requirements.in
 coverage==6.3.2
     # via -r requirements.in
+dill==0.3.4
+    # via pylint
 dominate==2.6.0
     # via -r requirements.in
 execnet==1.9.0
@@ -46,7 +48,7 @@ py==1.11.0
     # via
     #   pytest
     #   pytest-forked
-pylint==2.12.2
+pylint==2.13.1
     # via -r requirements.in
 pyparsing==3.0.7
     # via packaging
@@ -71,10 +73,10 @@ six==1.16.0
     #   python-dateutil
 tenacity==8.0.1
     # via plotly
-toml==0.10.2
-    # via pylint
 tomli==2.0.0
-    # via pytest
+    # via
+    #   pylint
+    #   pytest
 tqdm==4.63.1
     # via -r requirements.in
 wcmatch==8.3
