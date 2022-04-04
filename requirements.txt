@@ -34,7 +34,7 @@ numpy==1.22.3
     #   pandas
 packaging==21.3
     # via pytest
-pandas==1.4.1
+pandas==1.4.2
     # via -r requirements.in
 platformdirs==2.4.0
     # via pylint
