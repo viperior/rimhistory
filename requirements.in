@@ -1,5 +1,5 @@
 bunch==1.0.1
-coverage==6.3.3
+coverage==6.4.2
 dominate==2.6.0
 numpy==1.22.3
 pandas==1.4.2
