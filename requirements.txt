@@ -16,7 +16,7 @@ coverage==6.3.3
     # via -r requirements.in
 dill==0.3.4
     # via pylint
-dominate==2.6.0
+dominate==2.7.0
     # via -r requirements.in
 execnet==1.9.0
     # via pytest-xdist
@@ -28,7 +28,7 @@ lazy-object-proxy==1.7.1
     # via astroid
 mccabe==0.6.1
     # via pylint
-numpy==1.22.3
+numpy==1.23.2
     # via
     #   -r requirements.in
     #   pandas
