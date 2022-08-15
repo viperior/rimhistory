@@ -10,4 +10,4 @@ pytest==7.1.2
 pytest-forked==1.4.0
 pytest-xdist==2.5.0
 tqdm==4.64.0
-wcmatch==8.3
+wcmatch==8.4

@@ -77,7 +77,7 @@ tomli==2.0.0
     #   pytest
 tqdm==4.64.0
     # via -r requirements.in
-wcmatch==8.3
+wcmatch==8.4
     # via -r requirements.in
 wrapt==1.13.3
     # via astroid
